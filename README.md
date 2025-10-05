@@ -331,7 +331,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Author**: Vu Ngoc Duong
-- **Email**: your.email@example.com
+- **Email**: vungocduong255@gmail.com
 - **Project Link**: https://github.com/Duongvu05/Hanoi-Temperature-Forecasting
 
 ---
