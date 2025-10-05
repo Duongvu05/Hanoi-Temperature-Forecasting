@@ -1,0 +1,159 @@
+# Main Configuration
+project:
+  name: "Hanoi Temperature Forecasting"
+  version: "1.0.0"
+  description: "ML application for predicting Hanoi temperature"
+
+# Data Configuration
+data:
+  location: "Hanoi"
+  timezone: "Asia/Ho_Chi_Minh"
+  historical_years: 10
+  forecast_horizon: 5  # days ahead
+  
+  # API Configuration
+  visual_crossing:
+    base_url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
+    rate_limit: 1000  # requests per day
+    timeout: 30  # seconds
+  
+  # Data paths
+  paths:
+    raw_daily: "data/raw/daily/"
+    raw_hourly: "data/raw/hourly/"
+    processed_daily: "data/processed/daily/"
+    processed_hourly: "data/processed/hourly/"
+
+# Feature Engineering
+features:
+  target_column: "temp"
+  
+  # Lag features
+  lag_features:
+    - 1
+    - 2
+    - 3
+    - 7
+    - 14
+    - 30
+  
+  # Rolling window features
+  rolling_windows:
+    - 3
+    - 7
+    - 14
+    - 30
+  
+  # Statistical functions for rolling windows
+  rolling_functions:
+    - "mean"
+    - "std"
+    - "min"
+    - "max"
+  
+  # Cyclical features
+  cyclical_features:
+    - "hour"
+    - "day"
+    - "month"
+    - "dayofyear"
+  
+  # Text features to process
+  text_features:
+    - "conditions"
+    - "description"
+
+# Model Configuration
+models:
+  # Models to train and compare
+  algorithms:
+    - "linear_regression"
+    - "random_forest"
+    - "xgboost"
+    - "lightgbm"
+    - "catboost"
+    - "neural_network"
+  
+  # Cross-validation
+  cv_folds: 5
+  test_size: 0.2
+  validation_size: 0.2
+  
+  # Performance thresholds
+  performance_thresholds:
+    rmse_threshold: 3.0
+    mape_threshold: 15.0
+    r2_threshold: 0.7
+
+# Hyperparameter Optimization
+optimization:
+  framework: "optuna"
+  n_trials: 100
+  timeout: 3600  # seconds
+  
+  # Optimization objectives (can be multi-objective)
+  objectives:
+    - "rmse"
+  
+  # Pruning
+  pruner: "median"
+  n_startup_trials: 10
+  n_warmup_steps: 5
+
+# Monitoring Configuration
+monitoring:
+  # Performance monitoring
+  performance_tracking: true
+  drift_detection: true
+  
+  # Retraining triggers
+  retraining:
+    performance_degradation: true
+    data_drift: true
+    scheduled: true
+    schedule_frequency: "weekly"  # daily, weekly, monthly
+  
+  # Drift detection
+  drift_detection:
+    method: "ks_test"  # ks_test, psi, adversarial
+    threshold: 0.05
+    reference_window: 30  # days
+    detection_window: 7   # days
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log files
+  files:
+    data_collection: "logs/data_collection.log"
+    model_training: "logs/model_training.log"
+    monitoring: "logs/monitoring.log"
+    ui: "logs/ui.log"
+
+# UI Configuration
+ui:
+  title: "Hanoi Temperature Forecasting"
+  port: 8501
+  theme: "light"
+  
+  # Page configuration
+  pages:
+    - "Home"
+    - "Data Upload"
+    - "Model Training"
+    - "Predictions"
+    - "Model Monitoring"
+    - "Analytics"
+
+# ONNX Configuration
+onnx:
+  opset_version: 11
+  optimization_level: "all"
+  providers:
+    - "CPUExecutionProvider"
+  
+  # Model paths
+  daily_model_path: "models/onnx/daily_model.onnx"
+  hourly_model_path: "models/onnx/hourly_model.onnx"

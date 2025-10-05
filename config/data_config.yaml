@@ -1,0 +1,221 @@
+# Data Collection and Processing Configuration
+
+# Data Collection Settings
+collection:
+  # API Configuration
+  api:
+    provider: "visual_crossing"
+    base_url: "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
+    rate_limit: 1000  # requests per day
+    timeout: 30  # seconds
+    retry_attempts: 3
+    retry_delay: 5  # seconds
+  
+  # Location Settings
+  location:
+    primary: "Hanoi,Vietnam"
+    coordinates:
+      latitude: 21.0285
+      longitude: 105.8542
+    timezone: "Asia/Ho_Chi_Minh"
+  
+  # Data Range Settings
+  historical_data:
+    years: 10
+    start_date: null  # Auto-calculated if null
+    end_date: null    # Current date if null
+  
+  # Data Types
+  data_types:
+    daily:
+      enabled: true
+      includes: ["days"]
+      chunk_size: 365  # days per API request
+    
+    hourly:
+      enabled: true
+      includes: ["days", "hours"]
+      chunk_size: 30   # days per API request (smaller for hourly data)
+  
+  # Output Settings
+  output:
+    format: "csv"
+    date_format: "%Y-%m-%d"
+    include_metadata: true
+    compress: false
+
+# Data Processing Pipeline
+processing:
+  # Data Validation
+  validation:
+    check_date_continuity: true
+    check_missing_values: true
+    check_outliers: true
+    check_data_types: true
+    
+    # Outlier detection
+    outlier_method: "iqr"  # or "zscore", "isolation_forest"
+    outlier_threshold: 3.0
+  
+  # Missing Value Handling
+  missing_values:
+    strategy: "interpolate"  # "drop", "forward_fill", "backward_fill", "interpolate", "mean"
+    interpolation_method: "linear"  # "polynomial", "spline"
+    max_consecutive_missing: 3  # Maximum consecutive missing values to interpolate
+  
+  # Data Type Conversion
+  type_conversion:
+    datetime_columns: ["datetime", "sunrise", "sunset"]
+    numeric_columns: ["temp", "tempmax", "tempmin", "humidity", "pressure", "windspeed"]
+    categorical_columns: ["conditions", "description", "icon", "preciptype"]
+  
+  # Feature Filtering
+  feature_filtering:
+    # Required features (must be present)
+    required_features:
+      - "datetime"
+      - "temp"
+      - "humidity"
+      - "pressure"
+    
+    # Optional features (include if available)
+    optional_features:
+      - "tempmax"
+      - "tempmin"
+      - "feelslike"
+      - "dew"
+      - "windspeed"
+      - "winddir"
+      - "windgust"
+      - "cloudcover"
+      - "visibility"
+      - "precip"
+      - "precipprob"
+      - "preciptype"
+      - "snow"
+      - "snowdepth"
+      - "solarradiation"
+      - "solarenergy"
+      - "uvindex"
+      - "moonphase"
+      - "conditions"
+      - "description"
+      - "icon"
+    
+    # Features to exclude
+    exclude_features:
+      - "source"
+      - "stations"
+
+# Data Quality Checks
+quality_checks:
+  # Temperature range validation
+  temperature:
+    min_value: -20.0  # °C
+    max_value: 50.0   # °C
+    check_daily_range: true
+    max_daily_range: 30.0  # °C
+  
+  # Humidity validation
+  humidity:
+    min_value: 0.0
+    max_value: 100.0
+  
+  # Pressure validation
+  pressure:
+    min_value: 950.0   # hPa
+    max_value: 1050.0  # hPa
+  
+  # Wind speed validation
+  wind_speed:
+    min_value: 0.0
+    max_value: 200.0  # km/h
+  
+  # Precipitation validation
+  precipitation:
+    min_value: 0.0
+    max_value: 500.0  # mm
+
+# Data Storage Configuration
+storage:
+  # Directory structure
+  directories:
+    raw_data: "data/raw/"
+    processed_data: "data/processed/"
+    backup_data: "data/backup/"
+  
+  # File naming conventions
+  naming:
+    daily_data: "{location}_weather_daily_{start_date}_{end_date}.csv"
+    hourly_data: "{location}_weather_hourly_{start_date}_{end_date}.csv"
+    processed_data: "{location}_processed_{data_type}_{timestamp}.csv"
+    metadata: "{location}_metadata_{timestamp}.json"
+  
+  # Backup settings
+  backup:
+    enabled: true
+    frequency: "daily"
+    retention_days: 30
+    compress_backups: true
+
+# Data Export Configuration
+export:
+  # Supported formats
+  formats:
+    - "csv"
+    - "parquet"
+    - "json"
+    - "excel"
+  
+  # CSV specific settings
+  csv:
+    delimiter: ","
+    encoding: "utf-8"
+    index: false
+    date_format: "%Y-%m-%d %H:%M:%S"
+  
+  # Parquet specific settings
+  parquet:
+    compression: "snappy"
+    index: false
+  
+  # Metadata inclusion
+  metadata:
+    include_collection_info: true
+    include_processing_info: true
+    include_quality_metrics: true
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/data_collection.log"
+  
+  # Progress tracking
+  progress:
+    show_progress_bar: true
+    log_every_n_requests: 10
+    
+  # Error handling
+  error_handling:
+    log_errors: true
+    continue_on_error: true
+    max_errors: 10
+
+# Performance Configuration
+performance:
+  # Parallel processing
+  parallel_processing:
+    enabled: true
+    max_workers: 4
+  
+  # Memory management
+  memory:
+    chunk_size: 10000  # rows to process at once
+    low_memory: true
+  
+  # Caching
+  caching:
+    enabled: true
+    cache_dir: "cache/"
+    cache_expiry: 86400  # seconds (24 hours)
