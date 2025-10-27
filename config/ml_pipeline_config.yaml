@@ -1,0 +1,85 @@
+# Machine Learning Pipeline Configuration
+# Hanoi Temperature Forecasting Project
+
+# Data Configuration
+data:
+  raw_data_path: "data/raw/daily/Daily_Data.csv"
+  processed_data_dir: "data/processed"
+  target_column: "temp"
+  train_test_split: 0.8
+
+# Sliding Window Configuration
+sliding_window:
+  window_length: 25
+  forecast_horizon: [1, 2, 3, 4, 5]  # Days ahead to forecast
+  step_length: 5
+
+# Model Configuration
+models:
+  linear_regression:
+    enabled: true
+    
+  random_forest:
+    enabled: true
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+    n_jobs: -1
+    
+  gradient_boosting:
+    enabled: true
+    n_estimators: 100
+    max_depth: 5
+    random_state: 42
+    
+  xgboost:
+    enabled: true
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
+    random_state: 42
+    
+  lightgbm:
+    enabled: true
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
+    random_state: 42
+    verbose: -1
+    
+  catboost:
+    enabled: true
+    iterations: 100
+    depth: 5
+    learning_rate: 0.1
+    random_state: 42
+    verbose: false
+
+# Visualization Configuration
+visualization:
+  figure_size:
+    comparison: [16, 12]
+    predictions: [15, 10]
+    all_models: [18, 14]
+  colors:
+    primary: "#2E86AB"
+    secondary: "#A23B72"
+    accent1: "#F18F01"
+    accent2: "#C73E1D" 
+    light: "#87CEEB"
+    success: "#28a745"
+    warning: "#ffc107"
+    danger: "#dc3545"
+  plot_samples: 200
+  
+# Output Configuration
+output:
+  models_dir: "models/daily"
+  results_filename: "ml_results.pkl"
+  comparison_csv: "ml_models_comparison.csv"
+  plots_dir: "plots"
+  
+# Logging Configuration  
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
