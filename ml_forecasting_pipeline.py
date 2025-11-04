@@ -13,279 +13,461 @@ import xgboost as xgb
 import lightgbm as lgb
 import catboost as cb
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
 
-class TemperatureForecastPipeline:
-    """Pipeline đơn giản cho dự đoán nhiệt độ 5 ngày tiếp theo"""
+class WeatherForecastPipeline:
+    """Pipeline dự đoán nhiệt độ 5 ngày với dữ liệu 10 năm"""
     
     def __init__(self):
         self.scaler = StandardScaler()
         self.label_encoders = {}
         
     def load_and_prepare_data(self):
-        """Load và chuẩn bị dữ liệu"""
-        print("Loading data...")
+        """Load và chuẩn bị dữ liệu 10 năm"""
+        print("=== LOADING 10-YEAR WEATHER DATA ===")
         
         data_path = '/home/vungocduong/Hanoi-Temperature-Forecasting/data/raw/daily/Daily_Data.csv'
         df = pd.read_csv(data_path)
         
         print(f"Original data shape: {df.shape}")
         
-        # Convert datetime
+        # Convert datetime và sort
         df['datetime'] = pd.to_datetime(df['datetime'])
         df = df.sort_values('datetime').reset_index(drop=True)
         
-        # Remove features with high missing values
-        missing_threshold = 0.05
-        missing_pct = df.isnull().sum() / len(df)
-        valid_features = missing_pct[missing_pct <= missing_threshold].index.tolist()
+        print(f"Data period: {df['datetime'].min()} to {df['datetime'].max()}")
+        print(f"Total days: {len(df)} days ({len(df)/365.25:.1f} years)")
         
-        # Remove non-feature columns
-        exclude_cols = ['datetime', 'name', 'resolvedAddress', 'tzoffset']
-        features = [col for col in valid_features if col not in exclude_cols]
+        # Kiểm tra missing values
+        missing_info = df.isnull().sum()
+        missing_pct = (missing_info / len(df)) * 100
         
-        print(f"Selected features: {len(features)}")
-        print(f"Features: {features}")
+        print(f"\nMissing data analysis:")
+        for col in missing_info[missing_info > 0].index:
+            print(f"  {col}: {missing_info[col]} ({missing_pct[col]:.1f}%)")
         
-        # Keep only valid features
-        df = df[['datetime'] + features].copy()
+        # Loại bỏ features với quá nhiều missing values (>20%)
+        high_missing = missing_pct[missing_pct > 20].index.tolist()
+        if high_missing:
+            print(f"\nRemoving features with >20% missing: {high_missing}")
+            df = df.drop(columns=high_missing)
         
-        # Remove any remaining missing values
-        df = df.dropna()
+        # Loại bỏ các cột không cần thiết
+        exclude_cols = ['name', 'resolvedAddress', 'tzoffset']
+        df = df.drop(columns=[col for col in exclude_cols if col in df.columns])
+        
+        # Fill missing values đơn giản
+        for col in df.select_dtypes(include=[np.number]).columns:
+            if df[col].isnull().sum() > 0:
+                df[col] = df[col].fillna(df[col].median())
+                
+        for col in df.select_dtypes(include=[object]).columns:
+            if col != 'datetime' and df[col].isnull().sum() > 0:
+                df[col] = df[col].fillna(df[col].mode()[0] if not df[col].mode().empty else 'unknown')
         
         print(f"Final data shape: {df.shape}")
         
-        return df, features
-    
-    def encode_categorical_features(self, df, features):
-        """Encode categorical features"""
-        for feature in features:
-            if df[feature].dtype == 'object':
-                le = LabelEncoder()
-                df[feature] = le.fit_transform(df[feature].astype(str))
-                self.label_encoders[feature] = le
-                print(f"Encoded categorical feature: {feature}")
-        
         return df
     
-    def create_sliding_windows(self, df, features):
-        """Tạo sliding windows: 30 ngày history -> 5 ngày forecast"""
-        print("Creating sliding windows...")
+    def add_time_features(self, df):
+        """Thêm time-based features"""
+        print("Adding time-based features...")
         
-        window_size = 30
-        forecast_days = 5
+        df['year'] = df['datetime'].dt.year
+        df['month'] = df['datetime'].dt.month
+        df['day'] = df['datetime'].dt.day
+        df['dayofyear'] = df['datetime'].dt.dayofyear
+        df['weekday'] = df['datetime'].dt.weekday
         
-        X, y = [], []
+        # Cyclical encoding
+        df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
+        df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
+        df['dayofyear_sin'] = np.sin(2 * np.pi * df['dayofyear'] / 365)
+        df['dayofyear_cos'] = np.cos(2 * np.pi * df['dayofyear'] / 365)
+        df['weekday_sin'] = np.sin(2 * np.pi * df['weekday'] / 7)
+        df['weekday_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
+        
+        # Season encoding
+        df['season'] = df['month'].map({12: 0, 1: 0, 2: 0,  # Winter
+                                       3: 1, 4: 1, 5: 1,   # Spring
+                                       6: 2, 7: 2, 8: 2,   # Summer
+                                       9: 3, 10: 3, 11: 3}) # Fall
+        
+        print(f"Added time features. New shape: {df.shape}")
+        return df
+    
+    def encode_categorical_features(self, df):
+        """Encode categorical features"""
+        print("Encoding categorical features...")
+        
+        categorical_cols = df.select_dtypes(include=[object]).columns.tolist()
+        if 'datetime' in categorical_cols:
+            categorical_cols.remove('datetime')
+            
+        for col in categorical_cols:
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col].astype(str))
+            self.label_encoders[col] = le
+            print(f"  Encoded: {col}")
+            
+        return df
+    
+    def prepare_features(self, df):
+        """Chuẩn bị features cuối cùng"""
+        print("Preparing final features...")
+        
+        # Loại bỏ datetime và các cột không cần thiết
+        feature_cols = [col for col in df.columns if col not in ['datetime']]
+        
+        print(f"Selected features: {len(feature_cols)}")
+        print(f"Feature types: {df[feature_cols].dtypes.value_counts().to_dict()}")
+        
+        return df, feature_cols
+    
+    def split_train_test(self, df, train_ratio=0.8):
+        """Chia train/test theo thời gian"""
+        print(f"\n=== TRAIN/TEST SPLIT ({int(train_ratio*100)}/{int((1-train_ratio)*100)}) ===")
+        
+        split_idx = int(len(df) * train_ratio)
+        
+        df_train = df.iloc[:split_idx].copy()
+        df_test = df.iloc[split_idx:].copy()
+        
+        print(f"Train period: {df_train['datetime'].min()} to {df_train['datetime'].max()}")
+        print(f"Test period: {df_test['datetime'].min()} to {df_test['datetime'].max()}")
+        print(f"Train samples: {len(df_train)} ({len(df_train)/365.25:.1f} years)")
+        print(f"Test samples: {len(df_test)} ({len(df_test)/365.25:.1f} years)")
+        
+        return df_train, df_test
+    
+    def create_rolling_windows(self, df, features, window_size=30, forecast_days=5):
+        """Tạo rolling windows cho training"""
+        print(f"\n=== CREATING ROLLING WINDOWS ===")
+        print(f"Window size: {window_size} days")
+        print(f"Forecast horizon: {forecast_days} days")
+        
+        X, y, dates = [], [], []
         
         for i in range(window_size, len(df) - forecast_days + 1):
-            # Features: 30 ngày trước
+            # Input: window_size ngày trước
             X_window = df[features].iloc[i-window_size:i].values.flatten()
             
-            # Target: nhiệt độ 5 ngày tiếp theo
+            # Output: nhiệt độ forecast_days ngày tiếp theo
             y_window = df['temp'].iloc[i:i+forecast_days].values
+            
+            # Date corresponding to forecast start
+            date_window = df['datetime'].iloc[i]
             
             X.append(X_window)
             y.append(y_window)
+            dates.append(date_window)
+            
+            if len(X) % 500 == 0:
+                print(f"  Created {len(X)} windows...")
         
         X = np.array(X)
         y = np.array(y)
+        dates = np.array(dates)
         
-        print(f"Windows created - X shape: {X.shape}, y shape: {y.shape}")
+        print(f"Windows created:")
+        print(f"  X shape: {X.shape} (samples, features)")
+        print(f"  y shape: {y.shape} (samples, forecast_days)")
+        print(f"  Date range: {dates[0]} to {dates[-1]}")
         
-        return X, y
-    
-    def split_data(self, X, y):
-        """Chia train/test theo thời gian"""
-        split_idx = int(len(X) * 0.8)
-        
-        X_train = X[:split_idx]
-        X_test = X[split_idx:]
-        y_train = y[:split_idx]
-        y_test = y[split_idx:]
-        
-        print(f"Train samples: {len(X_train)}")
-        print(f"Test samples: {len(X_test)}")
-        
-        return X_train, X_test, y_train, y_test
-    
-    def scale_features(self, X_train, X_test):
-        """Scale features"""
-        X_train_scaled = self.scaler.fit_transform(X_train)
-        X_test_scaled = self.scaler.transform(X_test)
-        
-        return X_train_scaled, X_test_scaled
+        return X, y, dates
     
     def initialize_models(self):
-        """Khởi tạo các models"""
+        """Khởi tạo các ML models"""
         models = {
             'Linear Regression': MultiOutputRegressor(LinearRegression()),
             'Ridge Regression': MultiOutputRegressor(Ridge(alpha=1.0)),
             'Lasso Regression': MultiOutputRegressor(Lasso(alpha=1.0)),
-            'Random Forest': MultiOutputRegressor(RandomForestRegressor(n_estimators=100, random_state=42)),
-            'XGBoost': MultiOutputRegressor(xgb.XGBRegressor(n_estimators=100, random_state=42)),
-            'LightGBM': MultiOutputRegressor(lgb.LGBMRegressor(n_estimators=100, random_state=42, verbose=-1)),
-            'CatBoost': MultiOutputRegressor(cb.CatBoostRegressor(n_estimators=100, random_state=42, verbose=False)),
-            'Decision Tree': MultiOutputRegressor(DecisionTreeRegressor(random_state=42)),
-            'KNN': MultiOutputRegressor(KNeighborsRegressor(n_neighbors=5)),
-            'SVR': MultiOutputRegressor(SVR(kernel='rbf'))
+            'Random Forest': MultiOutputRegressor(RandomForestRegressor(
+                n_estimators=100, max_depth=15, min_samples_split=5,
+                min_samples_leaf=2, random_state=42, n_jobs=-1)),
+            'XGBoost': MultiOutputRegressor(xgb.XGBRegressor(
+                n_estimators=100, max_depth=8, learning_rate=0.1,
+                subsample=0.8, colsample_bytree=0.8, random_state=42)),
+            'LightGBM': MultiOutputRegressor(lgb.LGBMRegressor(
+                n_estimators=100, max_depth=8, learning_rate=0.1,
+                subsample=0.8, colsample_bytree=0.8, random_state=42, verbose=-1)),
+            'CatBoost': MultiOutputRegressor(cb.CatBoostRegressor(
+                n_estimators=100, max_depth=8, learning_rate=0.1,
+                random_state=42, verbose=False)),
+            'Decision Tree': MultiOutputRegressor(DecisionTreeRegressor(
+                max_depth=15, min_samples_split=5, random_state=42)),
+            'KNN': MultiOutputRegressor(KNeighborsRegressor(n_neighbors=5, weights='distance')),
+            'SVR': MultiOutputRegressor(SVR(kernel='rbf', C=100, gamma='scale', epsilon=0.1))
         }
         
         return models
     
-    def train_and_evaluate_models(self, X_train, X_test, y_train, y_test):
-        """Train và evaluate models"""
-        print("Training models for 5-day temperature forecasting...")
+    def train_and_evaluate(self, X_train, X_test, y_train, y_test, dates_test):
+        """Train và evaluate tất cả models"""
+        print(f"\n=== MODEL TRAINING & EVALUATION ===")
         
         models = self.initialize_models()
         results = {}
         
         for name, model in models.items():
-            print(f"Training {name}...")
+            print(f"\nTraining {name}...")
             
             try:
                 start_time = datetime.now()
+                
+                # Training
                 model.fit(X_train, y_train)
                 train_time = (datetime.now() - start_time).total_seconds()
                 
                 # Predictions
+                y_pred_train = model.predict(X_train)
                 y_pred_test = model.predict(X_test)
                 
-                # Calculate metrics for each day
-                day_metrics = {}
+                # Calculate metrics cho từng ngày
+                daily_metrics = {}
                 for day in range(5):
-                    rmse = np.sqrt(mean_squared_error(y_test[:, day], y_pred_test[:, day]))
-                    mae = mean_absolute_error(y_test[:, day], y_pred_test[:, day])
-                    r2 = r2_score(y_test[:, day], y_pred_test[:, day])
+                    # Test metrics
+                    test_rmse = np.sqrt(mean_squared_error(y_test[:, day], y_pred_test[:, day]))
+                    test_mae = mean_absolute_error(y_test[:, day], y_pred_test[:, day])
+                    test_r2 = r2_score(y_test[:, day], y_pred_test[:, day])
                     
-                    day_metrics[f'day_{day+1}'] = {
-                        'rmse': rmse,
-                        'mae': mae,
-                        'r2': r2
+                    # Train metrics
+                    train_rmse = np.sqrt(mean_squared_error(y_train[:, day], y_pred_train[:, day]))
+                    train_r2 = r2_score(y_train[:, day], y_pred_train[:, day])
+                    
+                    daily_metrics[f'day_{day+1}'] = {
+                        'test_rmse': test_rmse,
+                        'test_mae': test_mae,
+                        'test_r2': test_r2,
+                        'train_rmse': train_rmse,
+                        'train_r2': train_r2
                     }
                 
                 # Overall metrics
-                overall_rmse = np.mean([day_metrics[f'day_{i+1}']['rmse'] for i in range(5)])
-                overall_mae = np.mean([day_metrics[f'day_{i+1}']['mae'] for i in range(5)])
-                overall_r2 = np.mean([day_metrics[f'day_{i+1}']['r2'] for i in range(5)])
+                overall_test_rmse = np.mean([daily_metrics[f'day_{i+1}']['test_rmse'] for i in range(5)])
+                overall_test_mae = np.mean([daily_metrics[f'day_{i+1}']['test_mae'] for i in range(5)])
+                overall_test_r2 = np.mean([daily_metrics[f'day_{i+1}']['test_r2'] for i in range(5)])
                 
                 results[name] = {
                     'model': model,
-                    'overall_rmse': overall_rmse,
-                    'overall_mae': overall_mae,
-                    'overall_r2': overall_r2,
-                    'day_metrics': day_metrics,
-                    'train_time': train_time
+                    'overall_test_rmse': overall_test_rmse,
+                    'overall_test_mae': overall_test_mae,
+                    'overall_test_r2': overall_test_r2,
+                    'daily_metrics': daily_metrics,
+                    'train_time': train_time,
+                    'predictions_test': y_pred_test,
+                    'dates_test': dates_test
                 }
                 
-                print(f"  {name}: Avg RMSE={overall_rmse:.3f}, Avg R²={overall_r2:.3f}")
+                print(f"  ✓ {name}: RMSE={overall_test_rmse:.3f}, MAE={overall_test_mae:.3f}, R²={overall_test_r2:.3f}")
                 
             except Exception as e:
-                print(f"  Error training {name}: {str(e)}")
+                print(f"  ✗ Error training {name}: {str(e)}")
                 continue
         
         return results
     
     def save_results(self, results):
-        """Save results"""
-        summary_data = []
+        """Lưu kết quả chi tiết"""
+        print(f"\n=== SAVING RESULTS ===")
         
+        # Summary results
+        summary_data = []
         for model_name, metrics in results.items():
             row = {
                 'Model': model_name,
-                'Overall_RMSE': metrics['overall_rmse'],
-                'Overall_MAE': metrics['overall_mae'],
-                'Overall_R2': metrics['overall_r2'],
-                'Train_Time': metrics['train_time']
+                'Overall_RMSE': metrics['overall_test_rmse'],
+                'Overall_MAE': metrics['overall_test_mae'],
+                'Overall_R2': metrics['overall_test_r2'],
+                'Train_Time_sec': metrics['train_time']
             }
             
             # Add daily metrics
             for day in range(1, 6):
                 day_key = f'day_{day}'
-                if day_key in metrics['day_metrics']:
-                    day_data = metrics['day_metrics'][day_key]
-                    row[f'Day{day}_RMSE'] = day_data['rmse']
-                    row[f'Day{day}_MAE'] = day_data['mae']
-                    row[f'Day{day}_R2'] = day_data['r2']
+                if day_key in metrics['daily_metrics']:
+                    day_data = metrics['daily_metrics'][day_key]
+                    row[f'Day{day}_RMSE'] = day_data['test_rmse']
+                    row[f'Day{day}_MAE'] = day_data['test_mae']
+                    row[f'Day{day}_R2'] = day_data['test_r2']
             
             summary_data.append(row)
         
         df_results = pd.DataFrame(summary_data)
-        df_results.to_csv('model_comparison_results.csv', index=False)
-        print("\nResults saved to model_comparison_results.csv")
+        df_results = df_results.sort_values('Overall_R2', ascending=False)
+        df_results.to_csv('weather_forecast_results.csv', index=False)
         
+        print("✓ Results saved to weather_forecast_results.csv")
         return df_results
     
-    def print_summary(self, results):
-        """Print summary"""
-        print("\n" + "="*60)
-        print("SUMMARY - 5-DAY TEMPERATURE FORECASTING")
-        print("="*60)
+    def create_visualizations(self, results):
+        """Tạo visualizations"""
+        print(f"\n=== CREATING VISUALIZATIONS ===")
         
-        # Sort by overall R²
-        sorted_results = sorted(results.items(), key=lambda x: x[1]['overall_r2'], reverse=True)
+        # Performance comparison
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
         
-        print(f"{'Model':<20} {'RMSE':<8} {'MAE':<8} {'R²':<8} {'Time(s)':<8}")
-        print("-" * 60)
+        # 1. Overall Performance
+        models = list(results.keys())
+        rmse_scores = [results[m]['overall_test_rmse'] for m in models]
+        r2_scores = [results[m]['overall_test_r2'] for m in models]
         
-        for name, metrics in sorted_results:
-            print(f"{name:<20} {metrics['overall_rmse']:<8.3f} "
-                  f"{metrics['overall_mae']:<8.3f} {metrics['overall_r2']:<8.3f} "
-                  f"{metrics['train_time']:<8.1f}")
+        axes[0,0].barh(models, rmse_scores, color='lightcoral')
+        axes[0,0].set_title('Overall Test RMSE by Model')
+        axes[0,0].set_xlabel('RMSE (°C)')
+        
+        axes[0,1].barh(models, r2_scores, color='lightblue')
+        axes[0,1].set_title('Overall Test R² by Model')
+        axes[0,1].set_xlabel('R² Score')
+        
+        # 2. Daily performance heatmap
+        daily_rmse_data = []
+        for model in models:
+            row = []
+            for day in range(1, 6):
+                rmse = results[model]['daily_metrics'][f'day_{day}']['test_rmse']
+                row.append(rmse)
+            daily_rmse_data.append(row)
+        
+        daily_rmse_df = pd.DataFrame(daily_rmse_data, 
+                                   index=models, 
+                                   columns=[f'Day {i}' for i in range(1, 6)])
+        
+        sns.heatmap(daily_rmse_df, annot=True, fmt='.2f', cmap='YlOrRd', ax=axes[1,0])
+        axes[1,0].set_title('RMSE by Model and Forecast Day')
+        
+        # 3. R² heatmap
+        daily_r2_data = []
+        for model in models:
+            row = []
+            for day in range(1, 6):
+                r2 = results[model]['daily_metrics'][f'day_{day}']['test_r2']
+                row.append(r2)
+            daily_r2_data.append(row)
+        
+        daily_r2_df = pd.DataFrame(daily_r2_data,
+                                 index=models,
+                                 columns=[f'Day {i}' for i in range(1, 6)])
+        
+        sns.heatmap(daily_r2_df, annot=True, fmt='.3f', cmap='RdYlGn', ax=axes[1,1])
+        axes[1,1].set_title('R² by Model and Forecast Day')
+        
+        plt.tight_layout()
+        plt.savefig('model_comparison.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print("✓ Visualization saved to model_comparison.png")
+    
+    def print_summary(self, results, df_results):
+        """In summary chi tiết"""
+        print(f"\n{'='*80}")
+        print("WEATHER FORECAST PERFORMANCE SUMMARY")
+        print(f"{'='*80}")
+        
+        # Top performers
+        print(f"\n📊 MODEL RANKING (by Overall R²):")
+        print(f"{'Rank':<5} {'Model':<20} {'RMSE':<8} {'MAE':<8} {'R²':<8} {'Time(s)':<8}")
+        print("-" * 65)
+        
+        for idx, (_, row) in enumerate(df_results.iterrows(), 1):
+            print(f"{idx:<5} {row['Model']:<20} {row['Overall_RMSE']:<8.3f} "
+                  f"{row['Overall_MAE']:<8.3f} {row['Overall_R2']:<8.3f} "
+                  f"{row['Train_Time_sec']:<8.1f}")
         
         # Best model details
-        best_model_name, best_metrics = sorted_results[0]
-        print(f"\nBest Model: {best_model_name}")
-        print(f"Overall Performance: RMSE={best_metrics['overall_rmse']:.3f}, "
-              f"MAE={best_metrics['overall_mae']:.3f}, R²={best_metrics['overall_r2']:.3f}")
+        best_model_name = df_results.iloc[0]['Model']
+        best_metrics = results[best_model_name]
         
-        print("\nDaily Performance:")
+        print(f"\n🏆 BEST MODEL: {best_model_name}")
+        print(f"   Overall: RMSE={best_metrics['overall_test_rmse']:.3f}°C, "
+              f"MAE={best_metrics['overall_test_mae']:.3f}°C, R²={best_metrics['overall_test_r2']:.3f}")
+        
+        print(f"\n📅 DAILY PERFORMANCE ({best_model_name}):")
         for day in range(1, 6):
-            day_key = f'day_{day}'
-            day_data = best_metrics['day_metrics'][day_key]
-            print(f"  Day {day}: RMSE={day_data['rmse']:.3f}, "
-                  f"MAE={day_data['mae']:.3f}, R²={day_data['r2']:.3f}")
+            day_data = best_metrics['daily_metrics'][f'day_{day}']
+            print(f"   Day {day}: RMSE={day_data['test_rmse']:.3f}°C, "
+                  f"MAE={day_data['test_mae']:.3f}°C, R²={day_data['test_r2']:.3f}")
+        
+        # Performance degradation
+        day1_rmse = best_metrics['daily_metrics']['day_1']['test_rmse']
+        day5_rmse = best_metrics['daily_metrics']['day_5']['test_rmse']
+        degradation = ((day5_rmse - day1_rmse) / day1_rmse) * 100
+        
+        print(f"\n📈 FORECAST QUALITY:")
+        print(f"   Day 1 RMSE: {day1_rmse:.3f}°C")
+        print(f"   Day 5 RMSE: {day5_rmse:.3f}°C")
+        print(f"   Performance degradation: {degradation:.1f}%")
+        
+        print(f"\n💡 INSIGHTS:")
+        print(f"   • Best performing model class: {'Ensemble' if 'Forest' in best_model_name or 'GB' in best_model_name else 'Linear'}")
+        print(f"   • Forecast accuracy decreases with time horizon (expected)")
+        print(f"   • 10-year dataset provides robust training foundation")
     
-    def run_pipeline(self):
-        """Run complete pipeline"""
-        print("=== Temperature Forecasting ML Pipeline (5 Days) ===\n")
+    def run_complete_pipeline(self, window_size=30, forecast_days=5):
+        """Chạy pipeline hoàn chỉnh"""
+        print("🌡️  HANOI TEMPERATURE FORECASTING PIPELINE")
+        print("🗓️  10-Year Historical Data | 5-Day Forecast Horizon")
+        print(f"🔄  Rolling Window: {window_size} days")
+        print("🤖  Machine Learning Models Comparison\n")
         
-        # 1. Load data
-        df, features = self.load_and_prepare_data()
-        if df is None:
-            return None
+        # 1. Load và prepare data
+        df = self.load_and_prepare_data()
         
-        # 2. Encode categorical features
-        df = self.encode_categorical_features(df, features)
+        # 2. Add time features
+        df = self.add_time_features(df)
         
-        # 3. Create sliding windows
-        X, y = self.create_sliding_windows(df, features)
+        # 3. Encode categorical
+        df = self.encode_categorical_features(df)
         
-        # 4. Split data
-        X_train, X_test, y_train, y_test = self.split_data(X, y)
+        # 4. Prepare features
+        df, features = self.prepare_features(df)
         
-        # 5. Scale features
-        X_train_scaled, X_test_scaled = self.scale_features(X_train, X_test)
+        # 5. Split train/test
+        df_train, df_test = self.split_train_test(df)
         
-        print(f"Final data shape:")
-        print(f"  Features: {X_train_scaled.shape[1]}")
-        print(f"  Training samples: {X_train_scaled.shape[0]}")
-        print(f"  Test samples: {X_test_scaled.shape[0]}")
-        print(f"  Target shape: {y_train.shape} (5-day forecasting)")
+        # 6. Create rolling windows
+        X_train, y_train, dates_train = self.create_rolling_windows(
+            df_train, features, window_size, forecast_days
+        )
+        X_test, y_test, dates_test = self.create_rolling_windows(
+            df_test, features, window_size, forecast_days
+        )
         
-        # 6. Train and evaluate models
-        results = self.train_and_evaluate_models(X_train_scaled, X_test_scaled, y_train, y_test)
+        # 7. Scale features
+        print(f"\n=== FEATURE SCALING ===")
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+        print(f"✓ Features scaled using StandardScaler")
+        print(f"  Train shape: {X_train_scaled.shape}")
+        print(f"  Test shape: {X_test_scaled.shape}")
         
-        # 7. Save and display results
+        # 8. Train và evaluate models
+        results = self.train_and_evaluate(X_train_scaled, X_test_scaled, y_train, y_test, dates_test)
+        
+        # 9. Save results
         df_results = self.save_results(results)
-        self.print_summary(results)
+        
+        # 10. Create visualizations  
+        self.create_visualizations(results)
+        
+        # 11. Print summary
+        self.print_summary(results, df_results)
         
         return results, df_results
 
 def main():
     """Main function"""
-    pipeline = TemperatureForecastPipeline()
-    results, df_results = pipeline.run_pipeline()
+    pipeline = WeatherForecastPipeline()
+    
+    # Run complete pipeline
+    results, df_results = pipeline.run_complete_pipeline(
+        window_size=30,    # 30 ngày history
+        forecast_days=5    # Dự đoán 5 ngày
+    )
+    
     return pipeline, results, df_results
 
 if __name__ == "__main__":

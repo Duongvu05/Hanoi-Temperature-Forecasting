@@ -151,3 +151,5 @@ Thumbs.db
 *.tmp
 *.temp
 *.csv
+*.json
+*.tsv
