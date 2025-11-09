@@ -1,0 +1,28 @@
+{
+  "os": "Windows-10-10.0.19045-SP0",
+  "python": "CPython 3.12.6",
+  "startedAt": "2025-10-21T10:06:17.817666Z",
+  "program": "f:\\PYTHON\\prepare Data and Visualisation\\Hanoi-Temperature-Forecasting\\notebooks\\05_model_training.ipynb",
+  "codePath": "notebooks\\05_model_training.ipynb",
+  "codePathLocal": "05_model_training.ipynb",
+  "git": {
+    "remote": "https://github.com/Duongvu05/Hanoi-Temperature-Forecasting.git",
+    "commit": "86e79cbe94e8a3f93d3d5f59d027f0bcb1f35714"
+  },
+  "email": "dawtdart615@gmail.com",
+  "root": "f:\\PYTHON\\prepare Data and Visualisation\\Hanoi-Temperature-Forecasting\\notebooks",
+  "host": "ANTAM-HOME",
+  "executable": "c:\\Users\\ADMIN\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "cpu_count": 14,
+  "cpu_count_logical": 20,
+  "disk": {
+    "/": {
+      "total": "262142947328",
+      "used": "132811743232"
+    }
+  },
+  "memory": {
+    "total": "16939200512"
+  },
+  "writerId": "qc94x9mvvet9texmuc36idytwyymvu7n"
+}

@@ -1,0 +1,58 @@
+_wandb:
+    value:
+        cli_version: 0.22.2
+        e:
+            tfyd9ocsal1bgk50j7thuuleheipi7rm:
+                codePath: notebooks\05_model_training.ipynb
+                codePathLocal: 05_model_training.ipynb
+                cpu_count: 14
+                cpu_count_logical: 20
+                disk:
+                    /:
+                        total: "262142947328"
+                        used: "132813541376"
+                email: dawtdart615@gmail.com
+                executable: c:\Users\ADMIN\AppData\Local\Programs\Python\Python312\python.exe
+                git:
+                    commit: 86e79cbe94e8a3f93d3d5f59d027f0bcb1f35714
+                    remote: https://github.com/Duongvu05/Hanoi-Temperature-Forecasting.git
+                host: ANTAM-HOME
+                memory:
+                    total: "16939200512"
+                os: Windows-10-10.0.19045-SP0
+                program: f:\PYTHON\prepare Data and Visualisation\Hanoi-Temperature-Forecasting\notebooks\05_model_training.ipynb
+                python: CPython 3.12.6
+                root: f:\PYTHON\prepare Data and Visualisation\Hanoi-Temperature-Forecasting\notebooks
+                startedAt: "2025-10-21T10:06:49.533587Z"
+                writerId: tfyd9ocsal1bgk50j7thuuleheipi7rm
+        m: []
+        python_version: 3.12.6
+        t:
+            "1":
+                - 5
+                - 6
+                - 53
+            "2":
+                - 5
+                - 6
+                - 53
+            "3":
+                - 2
+                - 14
+            "4": 3.12.6
+            "5": 0.22.2
+            "8":
+                - 1
+                - 3
+            "12": 0.22.2
+            "13": windows-amd64
+colsample_bytree:
+    value: 0.9641651826527424
+learning_rate:
+    value: 0.14933262242722342
+max_depth:
+    value: 3
+n_estimators:
+    value: 487
+subsample:
+    value: 0.8870154739134147
