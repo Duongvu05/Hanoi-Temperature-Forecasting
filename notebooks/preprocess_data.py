@@ -221,11 +221,12 @@ def predict_future(df_raw: pd.DataFrame) -> pd.DataFrame:
     last_date = pd.to_datetime(df_raw['datetime'].iloc[-1])
     X_processed = process_data(df)
     # 2. Áp dụng đúng preprocessor đã train (bao gồm lag, rolling, datetime features...)
-    X_final = preprocessor.transform(X_processed)  # đây là numpy array hoặc sparse matrix
+    X_final = preprocessor.transform(X_processed)
     
     X_final = select_top_k(X_final)
     # 4. Dự đoán
-    y_pred_5days = model.predict(X_final)[0]  # shape (5,)
+    y_pred_5days = model.predict(X_final)[-1]  # shape (5,)
+    y_pred_5days = y_pred_5days[::-1]
 
     # 3. Tạo DataFrame 5 ngày mới
     
