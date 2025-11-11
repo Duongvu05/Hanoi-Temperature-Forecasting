@@ -213,7 +213,8 @@ def get_weather_predictions(df, today):
             st.error(f"Not enough data rows. Need 30, have {len(df)}")
             return create_fallback_predictions(df, today)
         
-        predict_results = predict_future(df)
+        df = df.sort_values("datetime").reset_index(drop=True)
+        predict_results = predict_future(df[-60:])
         
         if isinstance(predict_results, pd.DataFrame):
             if not predict_results.empty:
@@ -766,8 +767,8 @@ def render_temperature_trend(future_df):
             
             # Set fixed Y-axis range
             fig.update_yaxes(
-                range=[21, 28],
-                dtick=1,
+                range=[0, 40],
+                dtick=5,
                 title=dict(text="Temperature (°C)", font=dict(color="#000000", size=10)),
                 tickfont=dict(color="#000000"),
                 gridcolor='#e1ebff'
@@ -832,7 +833,7 @@ def render_fallback_forecast(df, today):
 
 def render_past_weather(df):
     """Render historical weather data page"""
-    st.markdown("<h1 style='text-align:center;'>HANOI WEATHER HISTORY</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;font-size: 2rem;'>HANOI WEATHER HISTORY</h1>", unsafe_allow_html=True)
     
     try:
         # Ensure date column exists
@@ -852,7 +853,7 @@ def render_past_weather(df):
 
 def render_model_performance():
     """Render model performance page with metric cards"""
-    st.markdown("<h1 style='text-align:center;'>MODEL PERFORMANCE</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; font-size: 2rem;'>MODEL PERFORMANCE</h1>", unsafe_allow_html=True)
     st.markdown("#### Performance Metrics")
     st.markdown(
         """
@@ -865,11 +866,19 @@ def render_model_performance():
             margin-bottom: 0.5rem;
             text-align: left;
         ">
-            <div style="font-size: 1rem; line-height: 1.4;">
-                <div>Model: <strong>CatBoost</strong></div>
-                <div>Input Features: <strong>40 features × 30 days history</strong></div>
-                <div>Training Period: <strong>2015–2025</strong></div>
-                <div>Prediction Target: <strong>Daily average temperature</strong></div>
+            <div style="display: flex; gap: 5rem;">
+                <div style="font-size: 1rem; line-height: 1.4;">
+                    <div>Model:</div>
+                    <div>Input Features: </div>
+                    <div>Training Period: </div>
+                    <div>Prediction Target: </div>
+                </div>
+                <div style="font-size: 1rem; line-height: 1.4;">
+                    <div> <strong>CatBoost</strong></div>
+                    <div> <strong>40 features × 30 days history</strong></div>
+                    <div> <strong>01/10/2015–01/10/2025</strong></div>
+                    <div><strong>Daily average temperature</strong></div>
+                </div>
             </div>
         </div>
         """,
@@ -880,9 +889,9 @@ def render_model_performance():
     
     # Define your metrics
     metrics = [
-        ("R² Score", "0.92"),
-        ("MAE", "1.2°C"),
-        ("RMSE", "1.5°C"),
+        ("R² Score", "0.82"),
+        ("MAE", "1.68°C"),
+        ("RMSE", "2.15°C"),
         ("Training Period", "9 years")
     ]
     
@@ -906,20 +915,20 @@ def render_model_performance():
                     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                     justify-content:space-between;
                 ">
-                    <div style="text-align:left; font-size:0.9rem; opacity:0.8;">{label}</div>
-                    <div style="text-align:center; font-size:1.3rem; font-weight:600;">{value}</div>
+                    <div style="text-align:left; font-size:1rem; opacity:0.8;">{label}</div>
+                    <div style="text-align:center; font-size:1.2rem; font-weight:600;">{value}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
     st.markdown("#### Feature Importance")
-    st.info("Top features: Historical temperatures, seasonal patterns, humidity trends")
+    st.info("Top 10 features: day_length_hours_lag_21, day_length_hours_lag_30, temp_sealevelpressure_interaction, feelslike, temp, day_avg_feelslike, day_avg_tempmin, rolling_30_sealevelpressure, rolling_3_sealevelpressure_change, season_avg_sealevelpressure")
 
 def render_other_settings():
     """Render settings page with black text"""
     # Main heading in black
-    st.markdown("<h1 style='text-align:center; color:#000000;'>OTHER SETTINGS</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:#000000;font-size: 2rem;'>OTHER SETTINGS</h1>", unsafe_allow_html=True)
     
     # Subheading in black
     st.markdown("<h4 style='color:#000000;'>Data Management</h4>", unsafe_allow_html=True)
