@@ -1,4 +1,3 @@
-
 import os
 import time
 import requests
@@ -17,9 +16,9 @@ CHUNK_DAYS = 365
 RETRY_ATTEMPTS = 3
 SLEEP_BETWEEN_CHUNKS = 1
 
-BASE_DIR = Path(__file__).parent.parent.parent
-EXISTING_DATA_PATH = BASE_DIR / "ui" / "data" / "hanoi_weather_complete.csv"
-MODEL_DATA = BASE_DIR / "data" / "raw" / "daily_data.csv"
+BASE_DIR = Path(__file__).parent.parent
+EXISTING_DATA_PATH = BASE_DIR / "data" / "realtime" / "hanoi_weather_complete.csv"
+MODEL_DATA = BASE_DIR / "data" / "daily" / "daily_data.csv"
 
 def load_existing() -> pd.DataFrame:
     if EXISTING_DATA_PATH.exists():
@@ -30,7 +29,7 @@ def load_existing() -> pd.DataFrame:
 
     df = df.sort_values("datetime").reset_index(drop=True)
     print(f"Loaded {len(df)} rows – last date: {df['datetime'].max().date()}")
-    return df
+    return df.copy()
 
 
 def build_date_chunks(start: datetime, end: datetime) -> List[tuple]:
@@ -54,9 +53,9 @@ def fetch_chunk(start: str, end: str) -> pd.DataFrame:
             r = requests.get(url, timeout=30)
             if r.status_code == 200:
                 # Parse CSV directly from text response
-                df = pd.read_csv(StringIO(r.text))
+                df = pd.read_csv(StringIO(r.text), low_memory=False)
                 df["datetime"] = pd.to_datetime(df["datetime"])
-                return df
+                return df.copy()
             else:
                 print(f"Attempt {attempt+1}/{RETRY_ATTEMPTS} failed ({r.status_code}) – retrying...")
                 time.sleep(2 ** attempt)
@@ -70,7 +69,8 @@ def safe_save_csv(df: pd.DataFrame, path: Path, max_retries: int = 5) -> None:
     temp_file = path.with_suffix(".tmp")
     for attempt in range(max_retries):
         try:
-            df.to_csv(temp_file, index=False)
+            df_copy = df.copy()
+            df_copy.to_csv(temp_file, index=False)
             shutil.move(temp_file, path)
             print(f"Saved to {path}")
             return
@@ -99,27 +99,43 @@ def main() -> None:
     end_dt   = datetime.combine(today, datetime.min.time())  # ← up to today
 
     chunks = build_date_chunks(start_dt, end_dt)
-    new_frames: List[pd.DataFrame] = []
+
+    all_new_data = []
 
     for i, (s, e) in enumerate(chunks, 1):
         print(f"Chunk {i}/{len(chunks)}: {s} - {e}")
         chunk_df = fetch_chunk(s, e)
         print(f" {len(chunk_df)} days received")
-        new_frames.append(chunk_df)
+        all_new_data.append(chunk_df)
         time.sleep(SLEEP_BETWEEN_CHUNKS)
 
-    new_df = pd.concat(new_frames, ignore_index=True)
+    if all_new_data:
+        new_df = pd.concat(all_new_data, ignore_index=True, copy=False)
+    else:
+        new_df = pd.DataFrame()
+        
     print(f"Total new days fetched: {len(new_df)}")
 
     # Align columns
-    common_cols = df_raw.columns.intersection(new_df.columns)
-    df_raw = df_raw[common_cols]
-    new_df = new_df[common_cols]
+    if not new_df.empty:
+        common_cols = df_raw.columns.intersection(new_df.columns)
+        
+        # Create new DataFrames with aligned columns (more efficient)
+        aligned_raw = df_raw[common_cols].copy()
+        aligned_new = new_df[common_cols].copy()
+        
+        # FIXED: Single concat operation for final merge
+        full = pd.concat([aligned_raw, aligned_new], ignore_index=True, copy=False)
+    else:
+        full = df_raw.copy()
 
-    # Merge & dedupe
-    full = pd.concat([df_raw, new_df], ignore_index=True)
-    full = full.drop_duplicates(subset="datetime", keep="last")
-    full = full.sort_values("datetime").reset_index(drop=True)
+    full = (
+        full
+        .drop_duplicates(subset="datetime", keep="last")
+        .sort_values("datetime")
+        .reset_index(drop=True)
+        .copy()  
+    )
 
     safe_save_csv(full, EXISTING_DATA_PATH)
 

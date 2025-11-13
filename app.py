@@ -1,6 +1,3 @@
-# --------------------------------------------------------------
-# app.py – Hanoi Weather Forecast (Fixed Version)
-# --------------------------------------------------------------
 import sys
 from pathlib import Path
 import streamlit as st
@@ -18,43 +15,48 @@ import traceback
 import sys
 from pathlib import Path
 
-project_root = Path(__file__).parent.parent.parent  
+project_root = Path(__file__).parent  
 sys.path.append(str(project_root))
 
 def setup_paths() -> Dict[str, Path]:
     """Initialize and validate all file paths"""
     try:
         current_dir = Path(__file__).parent
-        ui_dir = current_dir.parent
-        project_root = ui_dir.parent
-        notebooks_dir = project_root / "notebooks"
+        project_root = current_dir
+        data_dir = current_dir / "data"
+        model_dir = current_dir / "models"
+        codes_dir = current_dir / "codes"
         
         paths = {
-            'ui_dir': ui_dir,
+            'data_dir': data_dir,
+            'model_dir': model_dir,
+            'codes_dir': codes_dir,
             'project_root': project_root,
-            'notebooks_dir': notebooks_dir,
-            'data_file': ui_dir / "data" / "hanoi_weather_complete.csv",
-            'update_script': ui_dir / "scripts" / "update_weather_data.py",
-            'model_file': notebooks_dir / "BEST_CATBOOST_TIMESERIES.joblib",
-            'selection_file': notebooks_dir / "selection_result.joblib"
+            'data_file': data_dir / "realtime" / "hanoi_weather_complete.csv",
+            'update_script': codes_dir / "update_weather_data.py",
+            'model_file': model_dir / "daily" / "BEST_CATBOOST_TIMESERIES.joblib",
+            'selection_file': model_dir / "daily" / "selection_result.joblib"
         }
         
         # Add to Python path safely
         if project_root.exists() and str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
-        if notebooks_dir.exists() and str(notebooks_dir) not in sys.path:
-            sys.path.insert(0, str(notebooks_dir))
-            
+        if codes_dir.exists() and str(codes_dir) not in sys.path:
+            sys.path.insert(0, str(codes_dir))
+        if model_dir.exists() and str(model_dir) not in sys.path:
+            sys.path.insert(0, str(model_dir))
+        if data_dir.exists() and str(data_dir) not in sys.path:
+            sys.path.insert(0, str(data_dir))
         return paths
     except Exception as e:
         st.error(f"Path configuration error: {e}")
         # Fallback paths
         current_dir = Path(__file__).parent
         return {
-            'data_file': current_dir / "data" / "hanoi_weather_complete.csv",
-            'update_script': current_dir / "scripts" / "update_weather_data.py",
-            'model_file': current_dir.parent / "notebooks" / "BEST_CATBOOST_TIMESERIES.joblib",
-            'selection_file': current_dir.parent / "notebooks" / "selection_result.joblib"
+            'data_file': current_dir / "data" / "realtime" / "hanoi_weather_complete.csv",
+            'update_script': current_dir / "codes" / "update_weather_data.py",
+            'model_file': current_dir / "models" / "daily" / "BEST_CATBOOST_TIMESERIES.joblib",
+            'selection_file': current_dir / "models" / "selection_result.joblib"
         }
 
 PATHS = setup_paths()
@@ -173,7 +175,7 @@ def get_historical_averages(df: pd.DataFrame) -> pd.DataFrame:
         averages = hist.groupby("doy")[["tempmin", "tempmax"]].mean().reset_index()
         full_doy = pd.DataFrame({"doy": range(1, 367)})
         averages = full_doy.merge(averages, on="doy", how="left")
-        averages = averages.fillna(method="ffill").fillna(method="bfill")
+        averages = averages.ffill().bfill()
         return averages
     except Exception:
         # Fallback averages
@@ -186,7 +188,7 @@ def get_weather_predictions(df, today):
     """Get weather predictions with detailed debugging"""
     try:
         # Import here to ensure fresh import with correct paths
-        from notebooks.preprocess_data import predict_future
+        from codes.preprocess_data import predict_future
         
         # Check if model files exist
         model_exists = PATHS['model_file'].exists()
@@ -802,7 +804,7 @@ def render_temperature_trend(future_df):
                 unsafe_allow_html=True
             )
             
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(fig, width ="stretch", config={'displayModeBar': False})
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("Temperature trend data not available")
@@ -845,7 +847,7 @@ def render_past_weather(df):
         
         if not row.empty:
             st.markdown("### Weather Record:")
-            st.dataframe(row, use_container_width=True)
+            st.dataframe(row, width="stretch")
         else:
             st.warning(f"No data found for {search_date}")
     except Exception as e:
@@ -866,7 +868,7 @@ def render_model_performance():
             margin-bottom: 0.5rem;
             text-align: left;
         ">
-            <div style="display: flex; gap: 5rem;">
+            <div style="display: flex; gap: 6rem;">
                 <div style="font-size: 1rem; line-height: 1.4;">
                     <div>Model:</div>
                     <div>Input Features: </div>
@@ -875,7 +877,7 @@ def render_model_performance():
                 </div>
                 <div style="font-size: 1rem; line-height: 1.4;">
                     <div> <strong>CatBoost</strong></div>
-                    <div> <strong>40 features × 30 days history</strong></div>
+                    <div> <strong>1200 features</strong></div>
                     <div> <strong>01/10/2015–01/10/2025</strong></div>
                     <div><strong>Daily average temperature</strong></div>
                 </div>
@@ -982,7 +984,7 @@ def main():
             }
             
             for page_key, page_label in pages.items():
-                if st.button(page_label, use_container_width=True, key=page_key):
+                if st.button(page_label, width ="stretch", key=page_key):
                     st.session_state.page = page_key
                     st.rerun()
             
