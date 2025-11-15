@@ -56,24 +56,25 @@ def setup_paths() -> Dict[str, Path]:
         project_root = current_dir
         data_dir = current_dir / "data"
         model_dir = current_dir / "models"
-        codes_dir = current_dir / "codes"
+        notebooks_dir = current_dir / "notebooks"
         
         paths = {
             'data_dir': data_dir,
             'model_dir': model_dir,
-            'codes_dir': codes_dir,
+            'notebooks_dir': notebooks_dir,
             'project_root': project_root,
             'data_file': data_dir / "realtime" / "hanoi_weather_complete.csv",
-            'update_script': codes_dir / "update_weather_data.py",
+            'update_script': notebooks_dir / "update_weather_data.py",
             'model_file': model_dir / "daily" / "BEST_CATBOOST_TIMESERIES.joblib",
-            'selection_file': model_dir / "daily" / "selection_result.joblib"
+            'selection_file': model_dir / "daily" / "selection_result.joblib",
+            'prediction_script': notebooks_dir / "generate_full_multi_horizon_predictions.py"
         }
         
         # Add to Python path safely
         if project_root.exists() and str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
-        if codes_dir.exists() and str(codes_dir) not in sys.path:
-            sys.path.insert(0, str(codes_dir))
+        if notebooks_dir.exists() and str(notebooks_dir) not in sys.path:
+            sys.path.insert(0, str(notebooks_dir))
         if model_dir.exists() and str(model_dir) not in sys.path:
             sys.path.insert(0, str(model_dir))
         if data_dir.exists() and str(data_dir) not in sys.path:
@@ -85,7 +86,7 @@ def setup_paths() -> Dict[str, Path]:
         current_dir = Path(__file__).parent
         return {
             'data_file': current_dir / "data" / "realtime" / "hanoi_weather_complete.csv",
-            'update_script': current_dir / "codes" / "update_weather_data.py",
+            'update_script': current_dir / "notebooks" / "update_weather_data.py",
             'model_file': current_dir / "models" / "daily" / "BEST_CATBOOST_TIMESERIES.joblib",
             'selection_file': current_dir / "models" / "selection_result.joblib"
         }
@@ -95,98 +96,69 @@ PATHS = setup_paths()
 # --------------------------
 # DATA MANAGEMENT
 # --------------------------
-def trigger_prediction_generation(df: pd.DataFrame):
-    """Generate and save multi-horizon predictions after data update"""
-    try:
-        from codes.preprocess_data import predict_future
-        from pathlib import Path
-        
-        # Ensure enough data
-        if len(df) < 60:
-            st.warning("Not enough data to generate predictions")
-            return False
-
-        # Generate predictions (last 60 days as context)
-        predictions = predict_future(df.tail(60))
-        
-        if not isinstance(predictions, pd.DataFrame) or predictions.empty:
-            st.error("Prediction generation returned invalid result")
-            return False
-
-        # Save to file
-        pred_file = PATHS['data_dir'] / "realtime" / "multi_horizon_predictions.csv"
-        pred_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Ensure correct schema
-        if 'y_pred' in predictions.columns and 'date' in predictions.columns:
-            predictions = predictions.rename(columns={'y_pred': 'predicted_temp', 'date': 'target_date'})
-            predictions['as_of_date'] = pd.Timestamp.now().normalize()  # today
-            predictions = predictions[['as_of_date', 'target_date', 'horizon', 'predicted_temp']]
-            
-            # Append or overwrite (you can choose)
-            predictions.to_csv(pred_file, index=False)
-            print("Multi-horizon predictions saved")
-            return True
-        else:
-            st.error("Prediction output missing required columns")
-            return False
-            
-    except Exception as e:
-        st.error(f"Prediction generation failed: {e}")
-        import traceback
-        print(f"Prediction traceback: {traceback.format_exc()}")
+def is_streamlit_cloud():
+    return os.path.exists("/home/appuser")
+def safe_prediction_update():
+    """Run multi-horizon prediction generation in background"""
+    pred_script = PATHS['prediction_script']
+    if not pred_script.exists():
+        st.sidebar.warning(f"Prediction script not found: {pred_script}")
         return False
-def safe_data_update():
-    """Run data update in background with comprehensive error handling"""
-    if not PATHS['update_script'].exists():
-        st.sidebar.warning(f"Update script not found at: {PATHS['update_script']}")
-        return False
-    
-    def update_thread():
+
+    def pred_thread():
         try:
-            # Use the project root as working directory (where the update script expects to run)
-            working_dir = PATHS['project_root']
-            
-            # Build the command - make sure we're using the same Python that runs the app
-            cmd = [sys.executable, str(PATHS['update_script'])]
-            
-            # Run the update script with the same environment
+            cmd = [sys.executable, str(pred_script)]
             result = subprocess.run(
                 cmd,
-                cwd=working_dir,
+                cwd=PATHS['project_root'],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                env=os.environ
+            )
+            if result.returncode == 0:
+                print("✅ Multi-horizon predictions updated successfully")
+            else:
+                print(f"Prediction update failed: {result.stderr}")
+        except Exception as e:
+            print(f"Prediction thread error: {e}")
+            import traceback
+            print(traceback.format_exc())
+
+    threading.Thread(target=pred_thread, daemon=True).start()
+    st.sidebar.info("Generating multi-horizon predictions...")
+    return True
+def safe_data_update(run_prediction_after: bool = False):
+    if not PATHS['update_script'].exists():
+        st.sidebar.warning(f"Update script not found: {PATHS['update_script']}")
+        return False
+
+    def update_thread():
+        try:
+            cmd = [sys.executable, str(PATHS['update_script'])]
+            result = subprocess.run(
+                cmd,
+                cwd=PATHS['project_root'],
                 capture_output=True,
                 text=True,
                 timeout=120,
-                env=os.environ  # Pass the current environment
+                env=os.environ
             )
-            
-            # Detailed logging of results
-            print(f"[update] Return code: {result.returncode}")
-            
             if result.returncode == 0:
-                print("✅ Weather data updated successfully")
-                if result.stdout:
-                    print(f"Update output: {result.stdout}")
+                print("Weather data updated")
+                if run_prediction_after:
+                    # Now safely run prediction (data is ready)
+                    safe_prediction_update()
             else:
-                print(f"Update failed with return code: {result.returncode}")
-                if result.stderr:
-                    print(f"Update stderr: {result.stderr}")
-                if result.stdout:
-                    print(f"Update stdout: {result.stdout}")
-                    
-        except subprocess.TimeoutExpired:
-            print("Update timed out after 120 seconds")
+                print(f"Update failed: {result.stderr}")
         except Exception as e:
-            print(f" Update error: {e}")
-            import traceback
-            print(f" Update traceback: {traceback.format_exc()}")
-    
-    # Start the update in a background thread
-    thread = threading.Thread(target=update_thread, daemon=True)
-    thread.start()
-    
-    st.sidebar.info("Update started in background...")
+            print(f"Update error: {e}")
+            traceback.print_exc()
+
+    threading.Thread(target=update_thread, daemon=True).start()
+    st.sidebar.info("Updating weather data...")
     return True
+
 @st.cache_data(ttl=1800)
 def load_csv() -> pd.DataFrame:
     """Load weather data with comprehensive error handling"""
@@ -213,9 +185,20 @@ def load_csv() -> pd.DataFrame:
 
 def load_historical_forecasts():
     pred_file = PATHS['data_dir'] / "realtime" / "multi_horizon_predictions.csv"
-    if pred_file.exists():
-        return pd.read_csv(pred_file, parse_dates=["as_of_date", "target_date"])
-    return pd.DataFrame()
+    if not pred_file.exists():
+        return pd.DataFrame()
+
+    try:
+        df = pd.read_csv(pred_file)
+        # Force convert columns to datetime, coerce errors to NaT
+        df['as_of_date'] = pd.to_datetime(df['as_of_date'], errors='coerce')
+        df['target_date'] = pd.to_datetime(df['target_date'], errors='coerce')
+        # Drop rows with invalid dates
+        df = df.dropna(subset=['as_of_date', 'target_date'])
+        return df
+    except Exception as e:
+        st.error(f"Error loading historical forecasts: {e}")
+        return pd.DataFrame()
 
 def create_fallback_data() -> pd.DataFrame:
     """Create synthetic data when real data is unavailable"""
@@ -266,7 +249,7 @@ def get_weather_predictions(df, today):
     """Get weather predictions with detailed debugging"""
     try:
         # Import here to ensure fresh import with correct paths
-        from codes.preprocess_data import predict_future
+        from notebooks.preprocess_data import predict_future
         
         # Check if model files exist
         model_exists = PATHS['model_file'].exists()
@@ -1271,29 +1254,24 @@ def main():
 
         # Auto-update
         if not st.session_state.get('auto_update_done', False):
-            try:
-                if not df.empty and 'datetime' in df.columns:
-                    last_recorded = pd.to_datetime(df['datetime']).dt.date.max()
-                    if today > last_recorded:
-                        st.sidebar.info(" Data is outdated. Triggering update...")
-                        st.cache_data.clear()
-                        safe_data_update()
-                        
-                        # Re-load updated data
-                        updated_df = pd.read_csv(PATHS['data_file'], parse_dates=["datetime"])
-                        updated_df = updated_df.sort_values("datetime").reset_index(drop=True)
-                        
-                        # Generate new multi-horizon predictions
-                        if trigger_prediction_generation(updated_df):
-                            st.sidebar.success(" Predictions updated")
+            if is_streamlit_cloud():
+                st.session_state.auto_update_done = True  # skip
+            else:
+                try:
+                    if not df.empty and 'datetime' in df.columns:
+                        last_recorded = pd.to_datetime(df['datetime']).dt.date.max()
+                        if today > last_recorded:
+                            st.sidebar.info("Data is outdated. Updating...")
+                            st.cache_data.clear()
+                            safe_data_update(run_prediction_after=True)  
+                            st.session_state.auto_update_done = True
                         else:
-                            st.sidebar.warning(" Prediction generation failed or skipped")
+                            st.session_state.auto_update_done = True
+                    else:
                         st.session_state.auto_update_done = True
-                else:
-                    st.session_state.auto_update_done = True  # no data → skip
-            except Exception as e:
-                st.sidebar.error(f"Auto-update failed: {e}")
-                st.session_state.auto_update_done = True
+                except Exception as e:
+                    st.sidebar.error(f"Auto-update failed: {e}")
+                    st.session_state.auto_update_done = True
         # Sidebar
         with st.sidebar:
             st.markdown('<div class="sidebar-title">Navigation Menu</div>', unsafe_allow_html=True)
