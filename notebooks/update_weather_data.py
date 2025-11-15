@@ -11,8 +11,16 @@ from io import StringIO
 from dotenv import load_dotenv
 import streamlit as st
 import os
-API_KEY = os.getenv("VISUAL_CROSSING_API_KEY")
 
+load_dotenv()  # This loads from current working directory by default
+
+API_KEY = os.getenv("WEATHER_API_KEY")
+print(f"API_KEY loaded: {'Yes' if API_KEY else 'No'}")
+if API_KEY:
+    print(f"API_KEY length: {len(API_KEY)}")
+    print(f"API_KEY preview: {API_KEY[:5]}...{API_KEY[-5:] if len(API_KEY) > 10 else ''}")
+else:
+    print("API_KEY is None — check .env location!")
 
 # -------------------------- CONFIG --------------------------
 # REMOVED: Hardcoded API_KEY - using get_api_key() function instead
