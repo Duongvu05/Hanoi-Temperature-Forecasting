@@ -190,12 +190,13 @@ Based on Visual Crossing Weather API data with daily aggregations for Hanoi (UTC
 
 ### Step 6: User Interface Development (`ui/app.py`)
 - **Framework**: Streamlit for interactive web application
+- **Live Application**: 🌐 **[Access Live Demo](https://hanoi-temperature-forecasting.streamlit.app/)** 
 - **Features**:
   - Real-time temperature prediction interface
   - Historical data visualization
   - Model performance metrics display
   - Interactive charts and forecasting results
-- **Deployment**: Local and cloud deployment options
+- **Deployment**: Local and cloud deployment options (Live on Streamlit Cloud)
 - **User Experience**: Intuitive interface for non-technical users
 
 ### Step 7: Model Performance Monitoring (`07_retrain_model.ipynb`)
