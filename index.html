@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanoi Temperature Forecasting - Project Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            margin: 20px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .description {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #dee2e6;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .features {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 30px 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌡️</div>
+        
+        <h1>Hanoi Temperature Forecasting</h1>
+        <p class="subtitle">Machine Learning Project Presentation</p>
+        
+        <p class="description">
+            Comprehensive presentation covering our advanced machine learning system for predicting 
+            temperature in Hanoi, Vietnam using 10 years of historical weather data and CatBoost algorithm 
+            achieving 82.85% accuracy.
+        </p>
+        
+        <div class="buttons">
+            <a href="slides.html" class="btn btn-primary">
+                📊 View Interactive Slides
+            </a>
+            <a href="slides.md" class="btn btn-secondary" download>
+                📄 Download Markdown
+            </a>
+            <a href="https://hanoi-temperature-forecasting.streamlit.app/" class="btn btn-secondary" target="_blank">
+                🌐 Live Demo App
+            </a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">20+ Slides</div>
+                <div class="feature-desc">Comprehensive coverage</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">82.85% Accuracy</div>
+                <div class="feature-desc">Model performance</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Interactive</div>
+                <div class="feature-desc">Keyboard navigation</div>
+            </div>
+            <div class="feature">
+                <div class="feature-title">🔄</div>
+                <div class="feature-title">Full Pipeline</div>
+                <div class="feature-desc">End-to-end ML</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Team:</strong> Vu Ngoc Duong, Do Tuan Dat, Nguyen Thu Trang, Le Thi Anh Thu, Vu Tuan Dat</p>
+            <p>📍 GitHub Repository: <a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting" target="_blank">Hanoi-Temperature-Forecasting</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-3px) scale(1.02)';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Track clicks
+        document.querySelector('[href="slides.html"]').addEventListener('click', () => {
+            console.log('Interactive slides accessed');
+        });
+    </script>
+</body>
+</html>
