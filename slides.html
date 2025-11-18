@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Hanoi Temperature Forecasting - Slides</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -110,8 +110,11 @@
                 const response = await fetch('slides.md');
                 const markdown = await response.text();
                 
+                // Remove Marp front matter
+                let cleanMarkdown = markdown.replace(/^---[\s\S]*?---\n/, '');
+                
                 // Split by horizontal rules (---)
-                const slideContents = markdown.split(/\n---\n/);
+                const slideContents = cleanMarkdown.split(/\n---\n/);
                 
                 const container = document.getElementById('slides-container');
                 
@@ -119,7 +122,10 @@
                     const slideDiv = document.createElement('div');
                     slideDiv.className = 'slide';
                     slideDiv.id = `slide-${index}`;
-                    slideDiv.innerHTML = marked.parse(content.trim());
+                    
+                    // Clean up Marp-specific comments
+                    let cleanContent = content.replace(/<!--[\s\S]*?-->/g, '');
+                    slideDiv.innerHTML = marked.parse(cleanContent.trim());
                     
                     if (index > 0) {
                         slideDiv.style.display = 'none';
@@ -131,10 +137,16 @@
 
                 document.getElementById('total-slides').textContent = slides.length;
                 updateSlideNumber();
+                
+                // Show error message if no slides loaded
+                if (slides.length === 0) {
+                    container.innerHTML = '<div class="slide"><h1>⚠️ No Slides Found</h1><p>The markdown file might be empty or improperly formatted.</p></div>';
+                }
+                
             } catch (error) {
                 console.error('Error loading slides:', error);
                 document.getElementById('slides-container').innerHTML = 
-                    '<div class="slide"><h1>Error</h1><p>Could not load slides.md file. Make sure it exists in the same directory.</p></div>';
+                    '<div class="slide"><h1>❌ Loading Error</h1><p>Could not load slides.md file. Error: ' + error.message + '</p><p>Make sure the file exists and the server is running properly.</p></div>';
             }
         }
 

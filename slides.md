@@ -1,16 +1,3 @@
----
-marp: true
-theme: default
-class: lead
-paginate: true
-backgroundColor: #fff
-backgroundImage: url('https://marp.app/assets/hero-background.svg')
-header: 'Hanoi Temperature Forecasting Project'
-footer: 'Machine Learning System | 2025'
----
-
-<!-- _class: lead -->
-
 # Hanoi Temperature Forecasting Project
 ## 🌡️ Comprehensive Machine Learning System for Weather Prediction
 
@@ -18,9 +5,6 @@ footer: 'Machine Learning System | 2025'
 **Using 10 Years of Weather Data & Advanced ML Techniques**
 
 ---
-<!-- _header: '' -->
-<!-- _footer: '' -->
-<!-- _class: lead -->
 
 ## 📊 Project Overview
 
