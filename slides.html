@@ -1,213 +1,931 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hanoi Temperature Forecasting - Slides</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanoi Temperature Forecasting - Comprehensive ML Project</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            background-color: #f5f5f5;
-        }
-        .slide {
             background: white;
-            margin: 20px 0;
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            page-break-after: always;
-            min-height: 500px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
-        h1 { 
-            color: #2c3e50; 
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        h2 { 
-            color: #34495e; 
+        
+        h2 {
+            color: #34495e;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
             margin-top: 30px;
+            font-size: 1.8em;
         }
-        h3 { 
-            color: #7f8c8d; 
+        
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+            font-size: 1.3em;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
         }
+        
         th {
-            background-color: #3498db;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
             color: white;
+            font-weight: bold;
         }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fd;
+            transition: background-color 0.3s ease;
+        }
+        
         code {
-            background-color: #f8f9fa;
+            background-color: #f4f4f4;
             padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #e74c3c;
         }
+        
         pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
             overflow-x: auto;
+            margin: 15px 0;
         }
-        .navigation {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+        
+        pre code {
+            background: none;
+            color: #ecf0f1;
+            padding: 0;
         }
-        .nav-btn {
-            background: #3498db;
+        
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding: 10px 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            font-style: italic;
+        }
+        
+        a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        hr {
             border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2ecc71, #f39c12, #e74c3c);
+            margin: 40px 0;
+            border-radius: 2px;
         }
-        .nav-btn:hover {
-            background: #2980b9;
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
         }
-        .slide-number {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #34495e;
+        
+        .step-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 5px 15px;
-            border-radius: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
         }
+        
+        .performance-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 2px;
+        }
+        
+        .excellent { background-color: #2ecc71; color: white; }
+        .very-good { background-color: #3498db; color: white; }
+        .good { background-color: #f39c12; color: white; }
+        .acceptable { background-color: #e67e22; color: white; }
     </style>
 </head>
 <body>
-    <div class="navigation">
-        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
-        <button class="nav-btn" onclick="nextSlide()">Next →</button>
-        <button class="nav-btn" onclick="toggleFullscreen()">Fullscreen</button>
+    <div class="container">
+        <h1>Hanoi Temperature Forecasting Project</h1>
+<h2>🌡️ Comprehensive Machine Learning System for Weather Prediction</h2>
+<h3><em>Dự án Dự báo Nhiệt độ Hà Nội</em></h3>
+<p><strong>Using 10 Years of Weather Data &amp; Advanced CatBoost ML Techniques</strong></p>
+<hr />
+<h2>📊 Project Overview</h2>
+<h3>Key Highlights</h3>
+<ul>
+<li><strong>Objective</strong>: 5-day temperature forecasting for Hanoi, Vietnam using end-to-end ML pipeline</li>
+<li><strong>Data Source</strong>: Visual Crossing Weather API (2015-2025) with comprehensive weather variables</li>
+<li><strong>Model</strong>: CatBoost Gradient Boosting with Optuna hyperparameter optimization</li>
+<li><strong>Performance</strong>: R² = 0.828472 (82.85% accuracy) across multi-horizon predictions</li>
+<li><strong>Deployment</strong>: Live Streamlit web application + ONNX production optimization</li>
+</ul>
+<h3>Technical Specifications &amp; Scale</h3>
+<ul>
+<li><strong>10 years</strong> of historical weather data (3,653+ daily records)</li>
+<li><strong>33 comprehensive</strong> weather features from Visual Crossing API</li>
+<li><strong>87,672+</strong> hourly observations for enhanced granularity</li>
+<li><strong>Multi-horizon</strong> predictions (T+1 to T+5 days) with performance degradation analysis</li>
+<li><strong>95 selected features</strong> from 150+ engineered variables after correlation-based selection</li>
+<li><strong>Production Ready</strong>: 1.6ms inference time with ONNX optimization</li>
+</ul>
+<hr />
+<h2>Step 1: Data Collection</h2>
+<h2>📊 Thu thập Dữ liệu từ Visual Crossing API</h2>
+<h3>🎯 <strong>Data Acquisition Strategy</strong></h3>
+<ul>
+<li><strong>API Source</strong>: Visual Crossing Weather API with comprehensive weather variables</li>
+<li><strong>Timeline</strong>: 10 years (2015-2025) for Hanoi, Vietnam (UTC+07:00)</li>
+<li><strong>Location</strong>: Hanoi coordinates with 2m height temperature measurements</li>
+<li><strong>Granularity</strong>: Both daily and hourly aggregated weather data</li>
+<li><strong>Validation</strong>: Data quality checks and temporal consistency verification</li>
+</ul>
+<h3>📈 <strong>Comprehensive Dataset Features (33 Variables)</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Feature Category</strong></th>
+<th><strong>Variables</strong></th>
+<th><strong>Analysis Insights</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Temperature (4)</strong></td>
+<td>tempmax, tempmin, temp, feelslike</td>
+<td>Target: 15-38°C range, seasonal patterns</td>
+</tr>
+<tr>
+<td><strong>Atmospheric (4)</strong></td>
+<td>humidity, dew, sealevelpressure, visibility</td>
+<td>High correlation with temperature</td>
+</tr>
+<tr>
+<td><strong>Solar (3)</strong></td>
+<td>solarradiation, solarenergy, uvindex</td>
+<td>Strong temp correlation (r=0.65)</td>
+</tr>
+<tr>
+<td><strong>Precipitation (4)</strong></td>
+<td>precip, precipprob, precipcover, preciptype</td>
+<td>Sparse data, mostly 0 values</td>
+</tr>
+<tr>
+<td><strong>Wind (3)</strong></td>
+<td>windspeed, winddir, windgust</td>
+<td>Low signal for temp prediction</td>
+</tr>
+<tr>
+<td><strong>Temporal (3)</strong></td>
+<td>datetime, sunrise, sunset</td>
+<td>Seasonal variation, day length</td>
+</tr>
+<tr>
+<td><strong>Weather (12)</strong></td>
+<td>cloudcover, conditions, moonphase, etc.</td>
+<td>Weather system indicators</td>
+</tr>
+</tbody>
+</table>
+<h3>📊 <strong>Dataset Scale &amp; Quality Analysis</strong></h3>
+<ul>
+<li><strong>Total Records</strong>: 3,653 daily + 87,672 hourly observations</li>
+<li><strong>Missing Values</strong>: &lt;5% for any column (excellent data quality)</li>
+<li><strong>Temperature Range</strong>: 15-42°C with clear 4-season cycles</li>
+<li><strong>Data Validation</strong>: Zero duplicate records, temporal consistency verified</li>
+<li><strong>API Limitations</strong>: Free plan limited to 1000 records/day</li>
+</ul>
+<hr />
+<h2>Step 2: Exploratory Data Analysis</h2>
+<h2>🔍 Khám Phá Patterns và Correlations trong Dữ liệu</h2>
+<h3>🎯 <strong>Phát Hiện Chính</strong></h3>
+<ul>
+<li><strong>Seasonal Patterns</strong>: 4 mùa rõ ràng (Hè: 32-38°C, Đông: 16-22°C)</li>
+<li><strong>Weather Memory</strong>: Autocorrelation mạnh (r=0.87 lag-1 day)</li>
+<li><strong>Solar Correlation</strong>: Bức xạ mặt trời ảnh hướng nhiệt độ (r=0.65)</li>
+<li><strong>Feature Redundancy</strong>: <code>temp</code> vs <code>feelslike</code> (r=0.98) cần xử lý</li>
+</ul>
+<h3>📊 <strong>Statistical Analysis Results</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Aspect</strong></th>
+<th><strong>Finding</strong></th>
+<th><strong>ML Implication</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Temperature Range</strong></td>
+<td>15-38°C, ổn định 10 năm</td>
+<td>Good for forecasting</td>
+</tr>
+<tr>
+<td><strong>Missing Values</strong></td>
+<td>&lt;5% mỗi feature</td>
+<td>High data quality</td>
+</tr>
+<tr>
+<td><strong>Outliers</strong></td>
+<td>Extreme weather events</td>
+<td>Keep for robustness</td>
+</tr>
+<tr>
+<td><strong>Seasonality</strong></td>
+<td>Strong 365-day cycles</td>
+<td>Need cyclical encoding</td>
+</tr>
+<tr>
+<td><strong>Persistence</strong></td>
+<td>High day-to-day correlation</td>
+<td>Lag features critical</td>
+</tr>
+</tbody>
+</table>
+<h3>� <strong>Top Correlations với Temperature</strong></h3>
+<ol>
+<li><strong>feelslike</strong> (r=0.98) - Multicollinearity issue</li>
+<li><strong>dew point</strong> (r=0.78) - Humidity relationship  </li>
+<li><strong>solarradiation</strong> (r=0.65) - Energy source</li>
+<li><strong>humidity</strong> (r=-0.45) - Inverse relationship</li>
+</ol>
+<hr />
+<h2>Step 3: Data Processing</h2>
+<h2>🛠️ Clean and Prepare Data for Machine Learning</h2>
+<h3>🔍 <strong>Feature Type Classification &amp; Processing</strong></h3>
+<ul>
+<li><strong>Numerical (23)</strong>: Temperature metrics, humidity, pressure, wind, solar, precipitation amounts</li>
+<li><strong>Categorical (4)</strong>: preciptype, conditions, description, icon (encoded/removed)</li>
+<li><strong>Temporal (3)</strong>: datetime, sunrise, sunset (parsed to datetime objects)</li>
+<li><strong>Boolean/Binary (3)</strong>: Derived flags for weather conditions</li>
+</ul>
+<h3>⚙️ <strong>Comprehensive Preprocessing Pipeline</strong></h3>
+<pre><code class="language-python"># Data Quality Improvements Implementation
+preprocessing_steps = {
+    'datetime_conversion': 'Parsed sunrise, sunset to datetime objects',
+    'column_removal': 'Dropped icon, stations, conditions, description (low signal)',
+    'missing_values': 'SimpleImputer with median (numerical), most_frequent (categorical)',
+    'duplicate_detection': '0 duplicate records found',
+    'outlier_analysis': 'Temperature extremes identified but retained (valid winter data)'
+}
+</code></pre>
+<h3>📊 <strong>Data Processing Results</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Processing Step</strong></th>
+<th><strong>Before</strong></th>
+<th><strong>After</strong></th>
+<th><strong>Impact</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Count</strong></td>
+<td>33 raw features</td>
+<td>29 cleaned features</td>
+<td>-12% reduction</td>
+</tr>
+<tr>
+<td><strong>Missing Values</strong></td>
+<td>&lt;5% per column</td>
+<td>0% complete</td>
+<td>✅ Perfect quality</td>
+</tr>
+<tr>
+<td><strong>Data Types</strong></td>
+<td>Mixed types</td>
+<td>Standardized</td>
+<td>✅ ML-ready</td>
+</tr>
+<tr>
+<td><strong>Memory Usage</strong></td>
+<td>Raw dataset</td>
+<td>Optimized format</td>
+<td>✅ Efficient</td>
+</tr>
+<tr>
+<td><strong>Correlation Issues</strong></td>
+<td>High multicollinearity</td>
+<td>Flagged for feature selection</td>
+<td>✅ Identified</td>
+</tr>
+</tbody>
+</table>
+<h3>🎯 <strong>Key Processing Achievements</strong></h3>
+<ul>
+<li><strong>Outlier Analysis</strong>: Rare cold values (&lt;10°C) identified but retained as valid winter data</li>
+<li><strong>Skewed Distributions</strong>: Most non-temperature variables are non-normal (binary/sparse)</li>
+<li><strong>Correlation-Based Filtering</strong>: Identified high multicollinearity groups for feature selection</li>
+<li><strong>Pipeline Architecture</strong>: ColumnTransformer with separate numerical/categorical preprocessing</li>
+<li><strong>Output Quality</strong>: Preprocessed dataset with 29 cleaned features ready for engineering</li>
+</ul>
+<hr />
+<h2>🔧 Complete ML Pipeline Architecture</h2>
+<h3>9-Step Implementation Process</h3>
+<ol>
+<li><strong>Data Collection</strong> → API integration &amp; validation</li>
+<li><strong>Exploratory Analysis</strong> → Pattern discovery &amp; correlations</li>
+<li><strong>Data Processing</strong> → Cleaning &amp; preprocessing</li>
+<li><strong>Feature Engineering</strong> → Temporal &amp; lag features</li>
+<li><strong>Model Training</strong> → CatBoost optimization</li>
+<li><strong>UI Development</strong> → Streamlit web application</li>
+<li><strong>Performance Monitoring</strong> → Automated retraining</li>
+<li><strong>Hourly Enhancement</strong> → Extended granularity</li>
+<li><strong>ONNX Deployment</strong> → Production optimization</li>
+</ol>
+<hr />
+<h2>🛠️ Step 1-3: Data Foundation</h2>
+<h3>Data Collection &amp; Understanding</h3>
+<ul>
+<li><strong>API Integration</strong>: Visual Crossing Weather API</li>
+<li><strong>Validation</strong>: Quality checks and temporal consistency</li>
+<li><strong>Storage</strong>: Organized raw/processed/realtime structure</li>
+</ul>
+<h3>Key Discoveries from EDA</h3>
+<ul>
+<li><strong>Seasonal Patterns</strong>: Clear 4-season cycle</li>
+<li>Summer: 32-38°C (June-August)</li>
+<li>Winter: 16-22°C (December-February)</li>
+<li><strong>High Autocorrelation</strong>: Weather "stickiness" effect</li>
+<li><strong>Feature Redundancy</strong>: Multiple temperature variants</li>
+</ul>
+<h3>Data Processing Results</h3>
+<ul>
+<li><strong>Features Removed</strong>: <code>icon</code>, <code>stations</code>, <code>conditions</code> (low signal)</li>
+<li><strong>Missing Values</strong>: Handled with median/mode imputation</li>
+<li><strong>Outlier Analysis</strong>: Cold extremes (&lt;10°C) retained as valid winter data</li>
+</ul>
+<hr />
+<hr />
+<h2>Step 4: Feature Engineering</h2>
+<h2>⚙️ Transform Raw Data into ML-Ready Features for Temperature Forecasting</h2>
+<h3>🎯 <strong>Forecasting Context &amp; Strategy</strong></h3>
+<ul>
+<li><strong>Objective</strong>: Using daily historical data to predict Hanoi temperature for next 5 days</li>
+<li><strong>Engineering Pipeline</strong>: Transform 29 cleaned features into 150+ engineered features</li>
+<li><strong>Selection Process</strong>: Correlation-based selection to identify optimal feature subset</li>
+<li><strong>Final Feature Set</strong>: 95 selected features achieving best performance balance</li>
+</ul>
+<h3>🕒 <strong>Temporal Features - Seasonal Pattern Encoding</strong></h3>
+<pre><code class="language-python"># Cyclical encoding for seasonal patterns
+temporal_features = {
+    'day_of_year': 'Linear progression through year (1-365)',
+    'month': 'Seasonal indicator with cyclical encoding', 
+    'season': 'Categorical season indicators (Spring/Summer/Fall/Winter)',
+    'cyclical_encoding': 'sin/cos transformation for seasonal patterns'
+}
+</code></pre>
+<h3>📊 <strong>Lag Features - Historical Temperature Values</strong></h3>
+<ul>
+<li><strong>Lag Periods</strong>: 1-30 day historical temperature values</li>
+<li><strong>Critical Importance</strong>: Yesterday's temperature (lag_1) contributes 25-30% model importance</li>
+<li><strong>Extended Context</strong>: Weekly (7-day), bi-weekly (14-day), monthly (30-day) patterns</li>
+<li><strong>Multi-variable Lags</strong>: Temperature, humidity, solar radiation, pressure historical values</li>
+</ul>
+<h3>🌊 <strong>Rolling Statistics - Moving Patterns</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Window Size</strong></th>
+<th><strong>Metrics</strong></th>
+<th><strong>Purpose</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>3-day</strong></td>
+<td>Moving avg, std dev</td>
+<td>Short-term trend detection</td>
+</tr>
+<tr>
+<td><strong>7-day</strong></td>
+<td>Moving avg, std dev</td>
+<td>Weekly weather stability</td>
+</tr>
+<tr>
+<td><strong>14-day</strong></td>
+<td>Moving avg, std dev</td>
+<td>Bi-weekly pattern analysis</td>
+</tr>
+<tr>
+<td><strong>30-day</strong></td>
+<td>Moving avg, std dev</td>
+<td>Monthly climate context</td>
+</tr>
+</tbody>
+</table>
+<h3>🔬 <strong>Advanced Derived Features</strong></h3>
+<ul>
+<li><strong>Temperature Differences</strong>: Rate of change, day-to-day variations</li>
+<li><strong>Weather Stability Indices</strong>: Pressure trends, humidity persistence</li>
+<li><strong>Text Feature Processing</strong>: Weather conditions encoding (One-hot, Label encoding)</li>
+<li><strong>NLP Processing</strong>: Weather descriptions transformation to numerical features</li>
+</ul>
+<hr />
+<h2>Step 5: Model Training &amp; Optimization</h2>
+<h2>🤖 CatBoost Multi-Output với 82.85% Accuracy</h2>
+<h3>🏆 <strong>Algorithm Comparison Results</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Algorithm</strong></th>
+<th><strong>R² Score</strong></th>
+<th><strong>MAE (°C)</strong></th>
+<th><strong>RMSE (°C)</strong></th>
+<th><strong>Rank</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>🥇 CatBoost</strong></td>
+<td><strong>0.8285</strong></td>
+<td><strong>1.68</strong></td>
+<td><strong>2.02</strong></td>
+<td><strong>Winner</strong></td>
+</tr>
+<tr>
+<td>🥈 Ridge</td>
+<td>0.8109</td>
+<td>1.69</td>
+<td>2.21</td>
+<td>-2.1%</td>
+</tr>
+<tr>
+<td>🥉 Random Forest</td>
+<td>0.8078</td>
+<td>1.76</td>
+<td>2.23</td>
+<td>-2.5%</td>
+</tr>
+<tr>
+<td>Lasso</td>
+<td>0.8063</td>
+<td>1.73</td>
+<td>2.24</td>
+<td>-2.7%</td>
+</tr>
+</tbody>
+</table>
+<h3>⚙️ <strong>Optimal Hyperparameters (Optuna - 50 trials)</strong></h3>
+<pre><code class="language-python">best_params = {
+    'learning_rate': 0.074,     # Stable convergence
+    'depth': 7,                 # Complex interactions  
+    'iterations': 1498,         # Early stopping at 261
+    'l2_leaf_reg': 3.2,        # Regularization
+    'loss_function': 'MultiRMSE'  # Multi-output
+}
+</code></pre>
+<h3>🎯 <strong>Detailed Multi-Horizon Performance Analysis</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Horizon</strong></th>
+<th><strong>R² Score</strong></th>
+<th><strong>MAE (°C)</strong></th>
+<th><strong>RMSE (°C)</strong></th>
+<th><strong>Performance Quality</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T+1 Day</strong></td>
+<td><strong>0.917359</strong> (91.74%)</td>
+<td><strong>1.14</strong></td>
+<td><strong>1.46</strong></td>
+<td>🔥 Excellent</td>
+</tr>
+<tr>
+<td><strong>T+2 Days</strong></td>
+<td><strong>0.847739</strong> (84.77%)</td>
+<td><strong>1.55</strong></td>
+<td><strong>1.98</strong></td>
+<td>✅ Very Good</td>
+</tr>
+<tr>
+<td><strong>T+3 Days</strong></td>
+<td><strong>0.812615</strong> (81.26%)</td>
+<td><strong>1.73</strong></td>
+<td><strong>2.20</strong></td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td><strong>T+4 Days</strong></td>
+<td><strong>0.790585</strong> (79.06%)</td>
+<td><strong>1.85</strong></td>
+<td><strong>2.33</strong></td>
+<td>✅ Acceptable</td>
+</tr>
+<tr>
+<td><strong>T+5 Days</strong></td>
+<td><strong>0.774062</strong> (77.41%)</td>
+<td><strong>1.92</strong></td>
+<td><strong>2.42</strong></td>
+<td>⚠️ Acceptable</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Performance Degradation</strong>: -15.62% from T+1 to T+5 (natural forecast decay)</p>
+<hr />
+<h2>Step 6: User Interface Development</h2>
+<h2>🌐 Streamlit Interactive Web Application</h2>
+<h3>🚀 <strong>Live Production Deployment</strong></h3>
+<p><strong>🌐 <a href="https://hanoi-temperature-forecasting.streamlit.app/">Access Live Demo</a></strong>
+- <strong>Framework</strong>: Streamlit for interactive web application
+- <strong>Deployment</strong>: Local and cloud deployment options (Live on Streamlit Cloud)
+- <strong>User Experience</strong>: Intuitive interface for non-technical users
+- <strong>Performance</strong>: Real-time predictions with minimal latency</p>
+<h3>🎯 <strong>Comprehensive Application Features</strong></h3>
+<ul>
+<li><strong>🌡️ Real-time Temperature Prediction</strong>: 5-day forecast interface with confidence intervals</li>
+<li><strong>📈 Historical Data Visualization</strong>: Interactive charts and time series analysis</li>
+<li><strong>🎯 Model Performance Metrics</strong>: Live display of R² scores, MAE, RMSE across horizons</li>
+<li><strong>📈 Interactive Forecasting Results</strong>: Dynamic charts with user-friendly weather displays</li>
+<li><strong>📱 Mobile Responsive</strong>: Optimized for all device sizes and platforms</li>
+</ul>
+<h3>🛠️ <strong>Production Technical Stack</strong></h3>
+<pre><code class="language-python"># Web Application Framework
+streamlit&gt;=1.28.0          # Interactive web framework
+plotly&gt;=5.15.0             # Dynamic visualization charts
+pandas&gt;=2.0.0              # Data manipulation and analysis
+
+# ML Model Integration
+joblib&gt;=1.3.0              # Trained model loading and persistence
+catboost&gt;=1.2.0            # CatBoost inference engine
+onnxruntime&gt;=1.15.0        # ONNX optimized model deployment
+</code></pre>
+<hr />
+<h2>Step 7: Model Performance Monitoring</h2>
+<h2>📊 Production Monitoring &amp; Automated Retraining System</h2>
+<h3>🎯 <strong>MLOps Production Results (30-Day Simulation)</strong></h3>
+<pre><code class="language-python"># Automated retraining system performance
+production_results = {
+    'monitoring_period': '30 days (Oct 4 - Nov 2, 2023)',
+    'training_samples': 2895,
+    'automatic_retrains': 5,  # Triggered by performance alerts
+    'performance_recovery': 'RMSE: 3.95°C → 1.49°C (T+1)',
+    'model_versions': 'v1→v5 with systematic updates'
+}
+</code></pre>
+<h3>📈 <strong>Retraining Strategy &amp; Performance</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Trigger Condition</strong></th>
+<th><strong>Threshold</strong></th>
+<th><strong>Action</strong></th>
+<th><strong>Results</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T+1 RMSE Spike</strong></td>
+<td>&gt;30% increase</td>
+<td>Emergency retrain</td>
+<td>165% spike → baseline</td>
+</tr>
+<tr>
+<td><strong>T+2-5 Degradation</strong></td>
+<td>&gt;20% increase</td>
+<td>Scheduled retrain</td>
+<td>Performance recovered</td>
+</tr>
+<tr>
+<td><strong>Seasonal Shifts</strong></td>
+<td>Statistical drift</td>
+<td>Model update</td>
+<td>Adapted to weather changes</td>
+</tr>
+<tr>
+<td><strong>Evaluation Window</strong></td>
+<td>7-day stability</td>
+<td>Prevent overfit</td>
+<td>Balanced responsiveness</td>
+</tr>
+</tbody>
+</table>
+<h3>🔍 <strong>Key Production Insights</strong></h3>
+<ul>
+<li><strong>Weather Volatility</strong>: October period showed high temperature variability requiring frequent updates</li>
+<li><strong>Alert System</strong>: Real-time monitoring with 165% RMSE spike detection for critical failures  </li>
+<li><strong>Model Stability</strong>: 7-day evaluation window prevents over-frequent retraining</li>
+<li><strong>Performance Patterns</strong>: Systematic -16.37% degradation from T+1 to T+5 requires horizon-specific optimization</li>
+</ul>
+<h3>🚨 <strong>Advanced Monitoring Features</strong></h3>
+<ul>
+<li><strong>Performance Tracking</strong>: Continuous monitoring of model accuracy over time</li>
+<li><strong>Degradation Detection</strong>: Statistical methods to identify performance decline</li>
+<li><strong>Model Versioning</strong>: Systematic model updates and rollback capabilities</li>
+<li><strong>Zero Downtime</strong>: Seamless version transitions in production environment</li>
+</ul>
+<hr />
+<h2>Step 8: Hourly Enhancement</h2>
+<h2>⏰ Mở Rộng từ Daily → Hourly Forecasting</h2>
+<h3>🚀 <strong>System Enhancement Objectives</strong></h3>
+<ul>
+<li><strong>Temporal Resolution</strong>: Daily (1 pred/day) → Hourly (24 pred/day)</li>
+<li><strong>Data Volume</strong>: 3,653 daily records → 87,672 hourly records</li>
+<li><strong>Forecast Granularity</strong>: 5-day horizon → 120-hour horizon</li>
+<li><strong>Use Cases</strong>: Detailed intraday planning, energy management, agriculture</li>
+</ul>
+<h3>⚡ <strong>Performance Scaling Results</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Aspect</strong></th>
+<th><strong>Daily Model</strong></th>
+<th><strong>Hourly Model</strong></th>
+<th><strong>Scale Factor</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Training Time</strong></td>
+<td>42 seconds</td>
+<td>8.5 minutes</td>
+<td>12.1x</td>
+</tr>
+<tr>
+<td><strong>Model Size</strong></td>
+<td>12.8 MB</td>
+<td>47.3 MB</td>
+<td>3.7x</td>
+</tr>
+<tr>
+<td><strong>Inference</strong></td>
+<td>0.002s</td>
+<td>0.048s</td>
+<td>24x (per batch)</td>
+</tr>
+<tr>
+<td><strong>Memory Usage</strong></td>
+<td>180 MB</td>
+<td>1.2 GB</td>
+<td>6.7x</td>
+</tr>
+<tr>
+<td><strong>R² Score</strong></td>
+<td>82.85%</td>
+<td>79.21%</td>
+<td>-4.4% (acceptable)</td>
+</tr>
+</tbody>
+</table>
+<h3>� <strong>Hourly Model Performance</strong></h3>
+<pre><code class="language-python"># Hour-specific performance patterns
+peak_performance_hours = {
+    'Best (12:00-15:00)': 'R² = 0.834 (high solar correlation)',
+    'Good (06:00-09:00)': 'R² = 0.791 (morning stability)', 
+    'Moderate (18:00-21:00)': 'R² = 0.757 (evening transitions)',
+    'Challenging (00:00-05:00)': 'R² = 0.689 (night volatility)'
+}
+</code></pre>
+<hr />
+<h2>Step 9: ONNX Deployment Optimization</h2>
+<h2>🚀 Production-Ready Cross-Platform Model Optimization</h2>
+<h3>⚙️ <strong>ONNX Conversion Architecture</strong></h3>
+<pre><code class="language-python"># Model conversion strategy
+onnx_conversion = {
+    'architecture': 'CatBoost multi-target → 5 single-target ONNX models',
+    'conversion_status': '✅ All 5 models successfully converted and validated',
+    'deployment_type': 'Hybrid: Single-target ONNX for flexible production',
+    'model_format': 'T+1 to T+5 individual models for independent scaling'
+}
+</code></pre>
+<h3>⚡ <strong>Performance Benchmarking Results</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Metric</strong></th>
+<th><strong>CatBoost Native</strong></th>
+<th><strong>ONNX Optimized</strong></th>
+<th><strong>Improvement</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inference Speed</strong></td>
+<td>0.002s</td>
+<td><strong>0.0003s</strong></td>
+<td><strong>1.51x faster</strong></td>
+</tr>
+<tr>
+<td><strong>T+5 Specific</strong></td>
+<td>Standard</td>
+<td><strong>0.0006s ± 0.0032s</strong></td>
+<td>Consistent performance</td>
+</tr>
+<tr>
+<td><strong>Memory Usage</strong></td>
+<td>Baseline</td>
+<td>Optimized</td>
+<td>Production efficient</td>
+</tr>
+<tr>
+<td><strong>Cross-Platform</strong></td>
+<td>Python only</td>
+<td><strong>All platforms</strong></td>
+<td>Universal deployment</td>
+</tr>
+</tbody>
+</table>
+<h3>🎯 <strong>Accuracy Validation (Spot Check)</strong></h3>
+<ul>
+<li><strong>Prediction Comparison</strong>: CatBoost vs ONNX for T+1 horizon</li>
+<li><strong>Maximum Difference</strong>: <strong>0.0175°C</strong> between models</li>
+<li><strong>Mean Difference</strong>: <strong>0.0117°C</strong> (excellent accuracy preservation)</li>
+<li><strong>Status</strong>: ⚠️ Minor differences detected, acceptable for production</li>
+</ul>
+<h3>🌐 <strong>Production Deployment Benefits</strong></h3>
+<ul>
+<li><strong>Cross-Platform Compatibility</strong>: Run on different hardware and operating systems</li>
+<li><strong>Performance Optimization</strong>: 51% faster inference with maintained accuracy</li>
+<li><strong>Scalability</strong>: Independent single-target models for flexible scaling</li>
+<li><strong>Production Ready</strong>: Validated accuracy with &lt;0.02°C maximum deviation</li>
+<li><strong>Universal Support</strong>: Python, JavaScript, C++, Mobile (iOS/Android)</li>
+</ul>
+<hr />
+<h2>🏆 Final Results &amp; Comprehensive Technical Achievements</h2>
+<h3>🎯 <strong>Project Success Metrics</strong></h3>
+<ul>
+<li><strong>82.85% Accuracy</strong>: R² = 0.828472 across 5-day multi-horizon forecasting</li>
+<li><strong>Production Ready</strong>: Live Streamlit deployment with automated monitoring system</li>
+<li><strong>Cross-Platform</strong>: ONNX optimization with 1.51x performance improvement</li>
+<li><strong>Open Source</strong>: Complete end-to-end ML pipeline for community contribution</li>
+</ul>
+<h3>📊 <strong>Detailed Technical Specifications</strong></h3>
+<ul>
+<li><strong>Model Performance</strong>: Mean R² = 0.828472, T+1 MAE = 1.14°C, T+5 RMSE = 2.42°C</li>
+<li><strong>Inference Optimization</strong>: 0.0003s per prediction (ONNX), 1.6ms production latency</li>
+<li><strong>Data Engineering</strong>: 10 years, 87,672+ hourly + 3,653 daily observations</li>
+<li><strong>Feature Engineering</strong>: 95 selected features from 150+ engineered variables</li>
+<li><strong>Model Architecture</strong>: Multi-output CatBoost with Optuna hyperparameter optimization</li>
+</ul>
+<h3>🌐 <strong>Production Impact &amp; Applications</strong></h3>
+<ul>
+<li><strong>Live Web Application</strong>: 🌐 <strong><a href="https://hanoi-temperature-forecasting.streamlit.app/">hanoi-temperature-forecasting.streamlit.app</a></strong></li>
+<li><strong>GitHub Repository</strong>: Complete open-source implementation with comprehensive documentation</li>
+<li><strong>Educational Resource</strong>: 9-step ML pipeline demonstration for learning and research</li>
+<li><strong>Scalable Framework</strong>: Adaptable architecture for other cities and weather variables</li>
+<li><strong>Industry Applications</strong>: Weather forecasting, urban planning, agriculture, tourism planning</li>
+</ul>
+<hr />
+<h2>👥 Team &amp; Contributions</h2>
+<h3>Project Team</h3>
+<p><strong>Vu Ngoc Duong, Do Tuan Dat, Nguyen Thu Trang, Le Thi Anh Thu, Vu Tuan Dat</strong></p>
+<h3>Individual Contributions</h3>
+<ul>
+<li><strong>Data Engineering</strong>: API integration, preprocessing pipeline</li>
+<li><strong>Model Development</strong>: Feature engineering, hyperparameter tuning</li>
+<li><strong>Web Development</strong>: Streamlit interface, visualization</li>
+<li><strong>Production</strong>: ONNX optimization, monitoring system</li>
+<li><strong>Documentation</strong>: Comprehensive project documentation</li>
+</ul>
+<h3>GitHub Repository</h3>
+<p>🔗 <strong><a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting">Hanoi-Temperature-Forecasting</a></strong></p>
+<hr />
+<h2>📈 Demonstration &amp; Q&amp;A</h2>
+<h3>Live Demo Features</h3>
+<ul>
+<li><strong>Interactive Predictions</strong>: Real-time 5-day forecasts</li>
+<li><strong>Historical Analysis</strong>: 10-year trend visualization</li>
+<li><strong>Performance Metrics</strong>: Model accuracy tracking</li>
+<li><strong>User-Friendly Interface</strong>: Intuitive design for all users</li>
+</ul>
+<h3>Key Questions Welcome</h3>
+<ul>
+<li>Technical implementation details</li>
+<li>Model performance analysis</li>
+<li>Production deployment strategies</li>
+<li>Future enhancement possibilities</li>
+<li>Scalability and adaptation</li>
+</ul>
+<hr />
+<h2>🎉 Thank You!</h2>
+<h3>Project Success Highlights</h3>
+<ul>
+<li>✅ <strong>82.85% accuracy</strong> (R² = 0.828472) across 5-day multi-horizon temperature forecasting</li>
+<li>✅ <strong>Live web application</strong> with real-time predictions and comprehensive monitoring</li>
+<li>✅ <strong>Production-ready system</strong> with automated retraining and ONNX optimization</li>
+<li>✅ <strong>Complete ML pipeline</strong> with 9-step implementation from data to deployment</li>
+<li>✅ <strong>Open source contribution</strong> with comprehensive documentation for community learning</li>
+</ul>
+<h3>Technical Achievements Summary</h3>
+<ul>
+<li><strong>95 optimized features</strong> from 150+ engineered variables</li>
+<li><strong>1.51x faster inference</strong> with ONNX deployment optimization</li>
+<li><strong>Multi-granular forecasting</strong>: Both daily and hourly prediction capabilities</li>
+<li><strong>Automated MLOps</strong>: Performance monitoring with intelligent retraining system</li>
+</ul>
+<h3>Contact &amp; Resources</h3>
+<ul>
+<li><strong>Team</strong>: Vu Ngoc Duong, Do Tuan Dat, Nguyen Thu Trang, Le Thi Anh Thu, Vu Tuan Dat</li>
+<li><strong>GitHub</strong>: <a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting">@Duongvu05</a></li>
+<li><strong>Live Demo</strong>: <a href="https://hanoi-temperature-forecasting.streamlit.app/">Streamlit Application</a></li>
+<li><strong>Documentation</strong>: Complete project README with comprehensive technical specifications</li>
+</ul>
+<p><strong>Questions &amp; Discussion Welcome!</strong> 🙋‍♂️🙋‍♀️</p>
+        
+        <div class="highlight" style="margin-top: 40px; text-align: center;">
+            <h3>🚀 Complete Project Repository</h3>
+            <p><strong>GitHub:</strong> <a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting" target="_blank">Hanoi-Temperature-Forecasting</a></p>
+            <p><strong>Live Demo:</strong> <a href="https://hanoi-temperature-forecasting.streamlit.app/" target="_blank">Interactive Web Application</a></p>
+            <p><em>Comprehensive 9-step ML pipeline with production-ready deployment</em></p>
+        </div>
     </div>
-    <div class="slide-number">
-        <span id="current-slide">1</span> / <span id="total-slides">0</span>
-    </div>
-    
-    <div id="slides-container"></div>
-
-    <script>
-        let currentSlide = 0;
-        let slides = [];
-
-        async function loadSlides() {
-            try {
-                const response = await fetch('slides.md');
-                const markdown = await response.text();
-                
-                // Remove Marp front matter
-                let cleanMarkdown = markdown.replace(/^---[\s\S]*?---\n/, '');
-                
-                // Split by horizontal rules (---)
-                const slideContents = cleanMarkdown.split(/\n---\n/);
-                
-                const container = document.getElementById('slides-container');
-                
-                slideContents.forEach((content, index) => {
-                    const slideDiv = document.createElement('div');
-                    slideDiv.className = 'slide';
-                    slideDiv.id = `slide-${index}`;
-                    
-                    // Clean up Marp-specific comments
-                    let cleanContent = content.replace(/<!--[\s\S]*?-->/g, '');
-                    slideDiv.innerHTML = marked.parse(cleanContent.trim());
-                    
-                    if (index > 0) {
-                        slideDiv.style.display = 'none';
-                    }
-                    
-                    container.appendChild(slideDiv);
-                    slides.push(slideDiv);
-                });
-
-                document.getElementById('total-slides').textContent = slides.length;
-                updateSlideNumber();
-                
-                // Show error message if no slides loaded
-                if (slides.length === 0) {
-                    container.innerHTML = '<div class="slide"><h1>⚠️ No Slides Found</h1><p>The markdown file might be empty or improperly formatted.</p></div>';
-                }
-                
-            } catch (error) {
-                console.error('Error loading slides:', error);
-                document.getElementById('slides-container').innerHTML = 
-                    '<div class="slide"><h1>❌ Loading Error</h1><p>Could not load slides.md file. Error: ' + error.message + '</p><p>Make sure the file exists and the server is running properly.</p></div>';
-            }
-        }
-
-        function showSlide(n) {
-            if (n >= slides.length) currentSlide = 0;
-            if (n < 0) currentSlide = slides.length - 1;
-            else currentSlide = n;
-
-            slides.forEach((slide, index) => {
-                slide.style.display = index === currentSlide ? 'block' : 'none';
-            });
-            
-            updateSlideNumber();
-        }
-
-        function nextSlide() {
-            showSlide(currentSlide + 1);
-        }
-
-        function previousSlide() {
-            showSlide(currentSlide - 1);
-        }
-
-        function updateSlideNumber() {
-            document.getElementById('current-slide').textContent = currentSlide + 1;
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowRight':
-                case ' ':
-                    nextSlide();
-                    break;
-                case 'ArrowLeft':
-                    previousSlide();
-                    break;
-                case 'Home':
-                    showSlide(0);
-                    break;
-                case 'End':
-                    showSlide(slides.length - 1);
-                    break;
-                case 'f':
-                case 'F11':
-                    e.preventDefault();
-                    toggleFullscreen();
-                    break;
-            }
-        });
-
-        // Load slides when page loads
-        loadSlides();
-    </script>
 </body>
 </html>
