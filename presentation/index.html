@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanoi Temperature Forecasting - Presentation Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .description {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .slides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .slide-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .slide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .step-title {
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .step-description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .step-highlights {
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            display: inline-block;
+            background: #e8f5e8;
+            color: #27ae60;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px 4px;
+        }
+        
+        .slide-links {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .overview-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .overview-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .navigation {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 30px;
+            margin: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌡️</div>
+            <h1>Hanoi Temperature Forecasting</h1>
+            <p class="subtitle">Complete ML Pipeline Presentation Library</p>
+            <p class="description">
+                Comprehensive slide collection covering our 9-step machine learning pipeline 
+                for temperature forecasting in Hanoi, Vietnam. Each step includes detailed 
+                technical implementation, results analysis, and insights.
+            </p>
+        </div>
+        
+        <div class="overview-section">
+            <h2 class="overview-title">📊 Complete ML Pipeline Overview</h2>
+            <p>9 comprehensive steps from data collection to production deployment, 
+               featuring 10 years of weather data, CatBoost optimization, and 82.85% accuracy</p>
+        </div>
+        
+        <div class="slides-grid">
+            <div class="slide-card">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Data Collection</h3>
+                <p class="step-description">
+                    Visual Crossing Weather API integration. 10 years of comprehensive weather data 
+                    with 33 features covering temperature, humidity, solar radiation, and atmospheric conditions.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">10 years data</span>
+                    <span class="highlight">33 features</span>
+                    <span class="highlight">API integration</span>
+                    <span class="highlight">99.2% completeness</span>
+                </div>
+                <div class="slide-links">
+                    <a href="step1-data-collection.html" class="btn btn-primary">📊 View Slides</a>
+                    <a href="step1-data-collection.md" class="btn btn-secondary" download>📄 Download MD</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Exploratory Data Analysis</h3>
+                <p class="step-description">
+                    Deep statistical analysis revealing seasonal patterns, feature correlations, 
+                    and weather persistence. Key discovery: strong autocorrelation for forecasting.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">Correlation matrix</span>
+                    <span class="highlight">Seasonal patterns</span>
+                    <span class="highlight">Autocorrelation</span>
+                    <span class="highlight">Data quality</span>
+                </div>
+                <div class="slide-links">
+                    <a href="step2-exploratory-analysis.html" class="btn btn-primary">🔍 View Slides</a>
+                    <a href="step2-exploratory-analysis.md" class="btn btn-secondary" download>📄 Download MD</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Data Processing</h3>
+                <p class="step-description">
+                    Feature classification, missing value handling, and preprocessing pipeline creation. 
+                    Robust data cleaning and ML-ready format preparation.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">Zero missing</span>
+                    <span class="highlight">Pipeline design</span>
+                    <span class="highlight">Type consistency</span>
+                    <span class="highlight">Memory optimization</span>
+                </div>
+                <div class="slide-links">
+                    <a href="step3-data-processing.html" class="btn btn-primary">🛠️ View Slides</a>
+                    <a href="step3-data-processing.md" class="btn btn-secondary" download>📄 Download MD</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Feature Engineering</h3>
+                <p class="step-description">
+                    Advanced feature creation including lag variables, rolling statistics, 
+                    interactions, and forecasting-specific features. 136 engineered features total.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">136 features</span>
+                    <span class="highlight">Lag variables</span>
+                    <span class="highlight">Rolling stats</span>
+                    <span class="highlight">Interactions</span>
+                </div>
+                <div class="slide-links">
+                    <a href="step4-feature-engineering.html" class="btn btn-primary">⚙️ View Slides</a>
+                    <a href="step4-feature-engineering.md" class="btn btn-secondary" download>📄 Download MD</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">5</div>
+                <h3 class="step-title">Model Training</h3>
+                <p class="step-description">
+                    Algorithm comparison, CatBoost selection, hyperparameter optimization with Optuna. 
+                    Multi-output regression achieving 82.85% R² across 5 forecasting horizons.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">CatBoost winner</span>
+                    <span class="highlight">82.85% R²</span>
+                    <span class="highlight">Optuna tuning</span>
+                    <span class="highlight">Multi-output</span>
+                </div>
+                <div class="slide-links">
+                    <a href="step5-model-training.html" class="btn btn-primary">🤖 View Slides</a>
+                    <a href="step5-model-training.md" class="btn btn-secondary" download>📄 Download MD</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">6</div>
+                <h3 class="step-title">UI Development</h3>
+                <p class="step-description">
+                    Streamlit web application with interactive visualization, real-time predictions, 
+                    and user-friendly interface. Live demo deployment on Streamlit Cloud.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">Streamlit app</span>
+                    <span class="highlight">Live demo</span>
+                    <span class="highlight">Interactive viz</span>
+                    <span class="highlight">Real-time</span>
+                </div>
+                <div class="slide-links">
+                    <a href="https://hanoi-temperature-forecasting.streamlit.app/" class="btn btn-primary" target="_blank">🌐 Live Demo</a>
+                    <a href="../ui/app.py" class="btn btn-secondary">📄 Source Code</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">7</div>
+                <h3 class="step-title">Performance Monitoring</h3>
+                <p class="step-description">
+                    Automated model performance tracking, degradation detection, and retraining pipeline. 
+                    30-day simulation with 5 successful automatic retrains.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">Auto retraining</span>
+                    <span class="highlight">Performance alerts</span>
+                    <span class="highlight">Model versioning</span>
+                    <span class="highlight">Production ready</span>
+                </div>
+                <div class="slide-links">
+                    <a href="../notebooks/07_retrain_model.ipynb" class="btn btn-primary" target="_blank">📊 View Notebook</a>
+                    <a href="../notebooks/07_retrain_model.ipynb" class="btn btn-secondary" download>📄 Download</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">8</div>
+                <h3 class="step-title">Hourly Enhancement</h3>
+                <p class="step-description">
+                    Extended dataset with hourly granularity (70,000+ records), enhanced feature engineering, 
+                    and multi-horizon hourly forecasting capabilities.
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">70k+ records</span>
+                    <span class="highlight">Hourly data</span>
+                    <span class="highlight">Enhanced features</span>
+                    <span class="highlight">Multi-horizon</span>
+                </div>
+                <div class="slide-links">
+                    <a href="../notebooks/08_hourly_data.ipynb" class="btn btn-primary" target="_blank">📊 View Notebook</a>
+                    <a href="../notebooks/08_hourly_data.ipynb" class="btn btn-secondary" download>📄 Download</a>
+                </div>
+            </div>
+
+            <div class="slide-card">
+                <div class="step-number">9</div>
+                <h3 class="step-title">ONNX Deployment</h3>
+                <p class="step-description">
+                    Production optimization with ONNX conversion for cross-platform deployment. 
+                    1.51x faster inference with maintained accuracy (<0.02°C deviation).
+                </p>
+                <div class="step-highlights">
+                    <span class="highlight">ONNX format</span>
+                    <span class="highlight">1.51x faster</span>
+                    <span class="highlight">Cross-platform</span>
+                    <span class="highlight">Production ready</span>
+                </div>
+                <div class="slide-links">
+                    <a href="../notebooks/09_ONNX.ipynb" class="btn btn-primary" target="_blank">📊 View Notebook</a>
+                    <a href="../notebooks/09_ONNX.ipynb" class="btn btn-secondary" download>📄 Download</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">🎯 Quick Navigation</h2>
+            <a href="../slides.html" class="nav-btn">📊 Complete Presentation</a>
+            <a href="../index.html" class="nav-btn">🏠 Project Home</a>
+            <a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting" class="nav-btn" target="_blank">📂 GitHub Repository</a>
+            <a href="https://hanoi-temperature-forecasting.streamlit.app/" class="nav-btn" target="_blank">🌐 Live Demo</a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Team:</strong> Vu Ngoc Duong, Do Tuan Dat, Nguyen Thu Trang, Le Thi Anh Thu, Vu Tuan Dat</p>
+            <p><strong>Repository:</strong> <a href="https://github.com/Duongvu05/Hanoi-Temperature-Forecasting" target="_blank">Hanoi-Temperature-Forecasting</a></p>
+            <p><strong>Presentation Library:</strong> Complete technical documentation for ML pipeline implementation</p>
+        </div>
+    </div>
+</body>
+</html>
