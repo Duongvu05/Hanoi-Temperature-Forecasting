@@ -106,32 +106,34 @@
         let currentSlide = 0;
         let slides = [];
 
-        async function loadSlides() {
+        async function loadMarkdown() {
             try {
                 const response = await fetch('step1-data-collection.md');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const markdown = await response.text();
+                const html = marked.parse(markdown);
                 
-                const slideContents = markdown.split(/\n---\n/);
-                const container = document.getElementById('slides-container');
-                
-                slideContents.forEach((content, index) => {
-                    const slideDiv = document.createElement('div');
-                    slideDiv.className = 'slide';
-                    slideDiv.id = `slide-${index}`;
-                    slideDiv.innerHTML = marked.parse(content.trim());
-                    
-                    if (index > 0) {
-                        slideDiv.style.display = 'none';
-                    }
-                    
-                    container.appendChild(slideDiv);
-                    slides.push(slideDiv);
-                });
-
-                document.getElementById('total-slides').textContent = slides.length;
-                updateSlideNumber();
+                // Apply slide styling
+                const slideContent = `
+                    <div class="slide-container">
+                        <div class="slide-content">
+                            ${html}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('content').innerHTML = slideContent;
             } catch (error) {
-                console.error('Error loading slides:', error);
+                console.error('Error loading markdown:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="error-message">
+                        <h2>🚫 Cannot Load Presentation</h2>
+                        <p>Step 1: Data Collection content is not available.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Please check that <code>step1-data-collection.md</code> exists in the presentation directory.</p>
+                    </div>
+                `;
             }
         }
 

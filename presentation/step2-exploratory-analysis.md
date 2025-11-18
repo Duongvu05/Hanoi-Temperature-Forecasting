@@ -1,23 +1,34 @@
----
-marp: true
-theme: default
-class: lead
-paginate: true
-backgroundColor: #fff
-header: 'Step 2: Exploratory Data Analysis'
-footer: 'Hanoi Temperature Forecasting | EDA'
----
-
-<!-- _class: lead -->
-
 # Step 2: Exploratory Data Analysis
-## 🔍 Khám Phá và Hiểu Dữ Liệu Sâu
+## 🔍 Khám Phá Patterns và Correlations trong Dữ Liệu
 
-**Deep Dive into Dataset Structure & Patterns**
+### 🎯 **Phát Hiện Chính**
+- **Seasonal Patterns**: 4 mùa rõ ràng (Hè: 32-38°C, Đông: 16-22°C)
+- **Weather Memory**: Autocorrelation mạnh (r=0.87 lag-1 day)
+- **Solar Correlation**: Bức xạ mặt trời ảnh hưởng nhiệt độ (r=0.65)
+- **Feature Redundancy**: `temp` vs `feelslike` (r=0.98) cần xử lý
 
-*Statistical Analysis, Visualization & Insight Discovery*
+### 📊 **Statistical Analysis Results**
+| **Aspect** | **Finding** | **ML Implication** |
+|------------|-------------|--------------------|
+| **Temperature Range** | 15-38°C, ổn định 10 năm | Good for forecasting |
+| **Missing Values** | <5% mọi feature | High data quality |
+| **Outliers** | Extreme weather events | Keep for robustness |
+| **Seasonality** | Strong 365-day cycles | Need cyclical encoding |
+| **Persistence** | High day-to-day correlation | Lag features critical |
 
----
+### 🔥 **Top Correlations với Temperature**
+1. **feelslike** (r=0.98) - Multicollinearity issue
+2. **dew point** (r=0.78) - Humidity relationship  
+3. **solarradiation** (r=0.65) - Energy source
+4. **humidity** (r=-0.45) - Inverse relationship
+
+### 💡 **Key Insights cho Feature Engineering**
+- **Lag features** (1-7 days) sẽ là predictors mạnh nhất
+- **Rolling averages** để capture trends
+- **Seasonal encoding** (sin/cos) cho cyclical patterns
+- **Remove redundant** features (feelslike variants)
+
+### ✅ **Data Understanding Complete** → Ready for Processing
 
 ## 🎯 Mục Tiêu EDA
 

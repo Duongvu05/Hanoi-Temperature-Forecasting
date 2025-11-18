@@ -1,23 +1,39 @@
----
-marp: true
-theme: default
-class: lead
-paginate: true
-backgroundColor: #fff
-header: 'Step 5: Model Training & Optimization'
-footer: 'Hanoi Temperature Forecasting | Model Training'
----
-
-<!-- _class: lead -->
-
 # Step 5: Model Training & Optimization
-## 🤖 Huấn Luyện & Tối Ưu Model ML
+## 🤖 CatBoost Multi-Output với 82.85% Accuracy
 
-**CatBoost Multi-Output Regression & Hyperparameter Tuning**
+### 🏆 **Algorithm Comparison Results**
+| **Algorithm** | **R² Score** | **MAE (°C)** | **RMSE (°C)** | **Rank** |
+|---------------|--------------|--------------|---------------|----------|
+| **🥇 CatBoost** | **0.8285** | **1.68** | **2.02** | **Winner** |
+| 🥈 Ridge | 0.8109 | 1.69 | 2.21 | -2.1% |
+| 🥉 Random Forest | 0.8078 | 1.76 | 2.23 | -2.5% |
+| Lasso | 0.8063 | 1.73 | 2.24 | -2.7% |
 
-*Algorithm Selection, Training Pipeline & Performance Optimization*
+### ⚙️ **Optimal Hyperparameters (Optuna - 50 trials)**
+```python
+best_params = {
+    'learning_rate': 0.074,     # Stable convergence
+    'depth': 7,                 # Complex interactions  
+    'iterations': 1498,         # Early stopping at 261
+    'l2_leaf_reg': 3.2,        # Regularization
+    'loss_function': 'MultiRMSE'  # Multi-output
+}
+```
 
----
+### 📈 **Multi-Horizon Performance**
+| **Forecast** | **R²** | **MAE** | **RMSE** | **Quality** |
+|--------------|--------|---------|----------|-------------|
+| **T+1 Day** | 91.74% | 1.14°C | 1.46°C | 🔥 Excellent |
+| **T+2 Days** | 84.77% | 1.55°C | 1.98°C | ✅ Very Good |
+| **T+3 Days** | 81.26% | 1.73°C | 2.20°C | ✅ Good |
+| **T+5 Days** | 77.41% | 1.92°C | 2.42°C | ⚠️ Acceptable |
+
+### 🎯 **Top Feature Importance**
+1. **temp_lag_1** (28.5%) - Yesterday's temperature
+2. **temp_ma_7** (12.3%) - Weekly trend
+3. **solar_lag_1** (8.7%) - Solar energy memory
+
+### ✅ **Production-Ready Model** → 12.8MB, 0.002s inference
 
 ## 🎯 Mục Tiêu Model Training
 

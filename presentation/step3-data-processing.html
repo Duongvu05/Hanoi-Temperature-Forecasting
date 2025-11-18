@@ -106,34 +106,23 @@
         let currentSlide = 0;
         let slides = [];
 
-        async function loadSlides() {
+        async function loadMarkdown() {
             try {
                 const response = await fetch('step3-data-processing.md');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const markdown = await response.text();
+                const html = marked.parse(markdown);
                 
-                const slideContents = markdown.split(/\n---\n/);
-                const container = document.getElementById('slides-container');
-                
-                slideContents.forEach((content, index) => {
-                    const slideDiv = document.createElement('div');
-                    slideDiv.className = 'slide';
-                    slideDiv.id = `slide-${index}`;
-                    slideDiv.innerHTML = marked.parse(content.trim());
-                    
-                    if (index > 0) {
-                        slideDiv.style.display = 'none';
-                    }
-                    
-                    container.appendChild(slideDiv);
-                    slides.push(slideDiv);
-                });
-
-                document.getElementById('total-slides').textContent = slides.length;
-                updateSlideNumber();
-            } catch (error) {
-                console.error('Error loading slides:', error);
-            }
-        }
+                const slideContent = `
+                    <div class="slide-container">
+                        <div class="slide-content">
+                            ${html}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('content').innerHTML = slideContent;
 
         function showSlide(n) {
             if (n >= slides.length) currentSlide = 0;

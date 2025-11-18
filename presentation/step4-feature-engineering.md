@@ -1,23 +1,37 @@
----
-marp: true
-theme: default
-class: lead
-paginate: true
-backgroundColor: #fff
-header: 'Step 4: Feature Engineering'
-footer: 'Hanoi Temperature Forecasting | Feature Engineering'
----
-
-<!-- _class: lead -->
-
 # Step 4: Feature Engineering
-## ⚙️ Tạo Features Dự Báo Chuyên Sâu
+## ⚙️ Tạo 136 Features Thông Minh cho Forecasting
 
-**Transform Raw Data into Predictive Intelligence**
+### 🕒 **Lag Features (35 features) - Weather Memory**
+```python
+# Historical temperature patterns (most critical)
+lag_periods = [1, 2, 3, 5, 7, 14, 30]
+for lag in lag_periods:
+    df[f'temp_lag_{lag}'] = df['temp'].shift(lag)
+    df[f'solar_lag_{lag}'] = df['solarradiation'].shift(lag)
+```
+**Expected Impact**: temp_lag_1 → 25-30% model importance
 
-*Lag Features, Rolling Statistics & Forecasting Variables*
+### 📊 **Rolling Statistics (28 features) - Trend Analysis**
+- **Moving Averages**: 3, 7, 14, 30-day windows for temperature, humidity, solar
+- **Volatility**: Rolling standard deviations for stability measurement
+- **Trend Detection**: Rate of change and momentum indicators
 
----
+### 🌊 **Advanced Features (73 features)**
+| **Category** | **Count** | **Examples** |
+|--------------|-----------|-------------|
+| **Interactions** | 18 | solar_efficiency, heat_index, dew_point_depression |
+| **Seasonal** | 15 | temp_seasonal_anomaly, month_sin/cos, season indicators |
+| **Weather Patterns** | 20 | days_since_rain, pressure_trend, weather_stability |
+| **Cyclical** | 12 | Enhanced temporal encoding, week cycles |
+| **Baselines** | 8 | naive_forecast, seasonal_forecast for comparison |
+
+### 🎯 **Multi-Horizon Target Structure**
+```python
+target_columns = ['target_1d', 'target_2d', 'target_3d', 'target_4d', 'target_5d']
+# 5-day forecasting capability
+```
+
+### ✅ **136 Intelligent Features Created** → Ready for Model Selection
 
 ## 🎯 Mục Tiêu Feature Engineering
 

@@ -1,23 +1,33 @@
----
-marp: true
-theme: default
-class: lead
-paginate: true
-backgroundColor: #fff
-header: 'Step 1: Data Collection'
-footer: 'Hanoi Temperature Forecasting | Data Collection'
----
-
-<!-- _class: lead -->
-
 # Step 1: Data Collection
-## 📊 Thu Thập Dữ Liệu Thời Tiết
+## 📊 Thu Thập Dữ Liệu Thời Tiết từ Visual Crossing API
 
-**Visual Crossing Weather API Integration**
+### 🎯 **Mục Tiêu**
+- Thu thập 10 năm dữ liệu thời tiết Hà Nội (2015-2025)
+- 33 features toàn diện: nhiệt độ, độ ẩm, áp suất, bức xạ mặt trời
+- Đảm bảo chất lượng dữ liệu cao cho machine learning
 
-*10 Years of Comprehensive Weather Data (2015-2025)*
+### 📈 **Kết Quả Đạt Được**
+| **Metric** | **Value** | **Status** |
+|------------|-----------|------------|
+| **Thời gian thu thập** | 10+ năm | ✅ Hoàn thành |
+| **Tổng số features** | 33 biến | ✅ Đa dạng |
+| **Độ đầy đủ dữ liệu** | 99.2% | ✅ Xuất sắc |
+| **Records hàng ngày** | 3,650+ | ✅ Liên tục |
+| **Records hàng giờ** | 70,000+ | ✅ Chi tiết |
 
----
+### 🔧 **Công Nghệ Sử Dụng**
+- **API**: Visual Crossing Weather Services
+- **Storage**: Organized CSV files with date ranges  
+- **Quality Control**: Automated validation and consistency checks
+- **Processing**: Batch collection with rate limiting (1000 records/day)
+
+### 🌟 **Key Features Thu Thập**
+**Nhiệt độ & Cảm giác**: tempmax, tempmin, temp, feelslike variants  
+**Khí quyển**: humidity, pressure, visibility, cloudcover  
+**Năng lượng mặt trời**: solarradiation, uvindex  
+**Gió & Thời tiết**: windspeed, winddir, precip, conditions
+
+### ✅ **Foundation Complete** → Ready for EDA Phase
 
 ## 🎯 Mục Tiêu Thu Thập Dữ Liệu
 
