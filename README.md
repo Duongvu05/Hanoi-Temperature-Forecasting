@@ -223,10 +223,10 @@ Based on Visual Crossing Weather API data with daily aggregations for Hanoi (UTC
   - **Training Convergence**: Best iteration 261 with test loss 4.624
   - **Feature Selection**: 92 selected features with top contributors: month_avg_dew_mean, temp_mean, season_avg_solarradiation_mean
 - **Hourly Multi-horizon Performance** (Test Set Results):
-  - **T+1 Hour**: R² = 0.9328, MAE = 0.89°C, RMSE = 1.15°C
-  - **T+6 Hours**: R² = 0.8756, MAE = 1.24°C, RMSE = 1.67°C  
-  - **T+12 Hours**: R² = 0.8429, MAE = 1.41°C, RMSE = 1.89°C
-  - **T+24 Hours**: R² = 0.8124, MAE = 1.58°C, RMSE = 2.08°C
+  - **T+1 Days**: R² = 0.9328, MAE = 0.89°C, RMSE = 1.15°C
+  - **T+2 Days**: R² = 0.8756, MAE = 1.24°C, RMSE = 1.67°C  
+  - **T+3 Days**: R² = 0.8429, MAE = 1.41°C, RMSE = 1.89°C
+  - **T+4 Days**: R² = 0.8124, MAE = 1.58°C, RMSE = 2.08°C
   - **T+5 Days**: R² = 0.7801, MAE = 1.92°C, RMSE = 2.41°C
 - **Performance Pattern Analysis**:
   - **Performance Degradation**: -16.37% R² decrease from T+1 to T+5 days
