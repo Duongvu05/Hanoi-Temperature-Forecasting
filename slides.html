@@ -909,24 +909,34 @@ onnxruntime>=1.15.0        # ONNX optimization</code></pre>
                 <h2>📊 Dataset Scale Enhancement</h2>
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-value">87,672+</div>
-                        <div class="metric-label">Hourly Records</div>
+                        <div class="metric-value">70,000+</div>
+                        <div class="metric-label">Hourly Observations</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">10 Files</div>
-                        <div class="metric-label">Data Sources</div>
+                        <div class="metric-value">2,828 × 92</div>
+                        <div class="metric-label">Train Features</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">2015-2025</div>
-                        <div class="metric-label">Time Coverage</div>
+                        <div class="metric-value">708</div>
+                        <div class="metric-label">Test Samples</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">92</div>
-                        <div class="metric-label">Selected Features</div>
+                        <div class="metric-value">261</div>
+                        <div class="metric-label">Best Iteration</div>
                     </div>
                 </div>
 
-                <h2>⚡ Multi-Horizon Performance Analysis</h2>
+                <div class="highlight">
+                    <h3>🎯 CatBoost Training Configuration</h3>
+                    <ul>
+                        <li><strong>Optimal Parameters:</strong> iterations=1498, learning_rate=0.074, depth=7, early_stopping=150</li>
+                        <li><strong>Training Convergence:</strong> Best iteration 261 with test loss 4.624</li>
+                        <li><strong>Top Features:</strong> month_avg_dew_mean, temp_mean, season_avg_solarradiation_mean</li>
+                        <li><strong>Missing Data:</strong> Columns with >95% missing values removed automatically</li>
+                    </ul>
+                </div>
+
+                <h2>⚡ Hourly Multi-Horizon Performance (Test Set Results)</h2>
                 <table>
                     <tr>
                         <th>Forecast Horizon</th>
@@ -936,28 +946,28 @@ onnxruntime>=1.15.0        # ONNX optimization</code></pre>
                         <th>Performance Quality</th>
                     </tr>
                     <tr>
-                        <td><strong>T+1 Hour</strong></td>
+                        <td><strong>T+1 Days</strong></td>
                         <td>0.9328 (93.28%)</td>
                         <td>0.89</td>
                         <td>1.15</td>
                         <td><span class="performance-badge excellent">🔥 Excellent</span></td>
                     </tr>
                     <tr>
-                        <td><strong>T+6 Hours</strong></td>
+                        <td><strong>T+2 Days</strong></td>
                         <td>0.8756 (87.56%)</td>
                         <td>1.24</td>
                         <td>1.67</td>
                         <td><span class="performance-badge very-good">✅ Very Good</span></td>
                     </tr>
                     <tr>
-                        <td><strong>T+12 Hours</strong></td>
+                        <td><strong>T+3 Days</strong></td>
                         <td>0.8429 (84.29%)</td>
                         <td>1.41</td>
                         <td>1.89</td>
                         <td><span class="performance-badge good">✅ Good</span></td>
                     </tr>
                     <tr>
-                        <td><strong>T+24 Hours</strong></td>
+                        <td><strong>T+4 Days</strong></td>
                         <td>0.8124 (81.24%)</td>
                         <td>1.58</td>
                         <td>2.08</td>
@@ -973,11 +983,45 @@ onnxruntime>=1.15.0        # ONNX optimization</code></pre>
                 </table>
 
                 <div class="highlight">
-                    <h3>🔍 Critical Findings</h3>
+                    <h3>🔍 Performance Pattern Analysis</h3>
                     <p><strong>Performance Degradation:</strong> -16.37% R² decrease from T+1 to T+5 days</p>
-                    <p><strong>Enhanced Features:</strong> 3h, 6h, 12h, 24h rolling windows with cyclical encoding</p>
-                    <p><strong>Trade-offs:</strong> 3x training time, 5x memory usage for improved short-term accuracy</p>
+                    <p><strong>⚠️ Critical Finding:</strong> Reverse degradation pattern requiring T+1 optimization for daily predictions</p>
+                    <p><strong>Enhanced Features:</strong> Rolling windows (3h, 6h, 12h, 24h), lag features (1h-24h), cyclical encoding</p>
                 </div>
+
+                <h2>📊 Performance Trade-offs Analysis</h2>
+                <table>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Daily Model</th>
+                        <th>Hourly Model</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td>Training Time</td>
+                        <td>Baseline</td>
+                        <td>3x increase</td>
+                        <td>Higher computational cost</td>
+                    </tr>
+                    <tr>
+                        <td>Memory Usage</td>
+                        <td>Baseline</td>
+                        <td>5x increase</td>
+                        <td>Resource intensive</td>
+                    </tr>
+                    <tr>
+                        <td>Accuracy</td>
+                        <td>Daily forecasts</td>
+                        <td>Variable performance</td>
+                        <td>Horizon-specific optimization needed</td>
+                    </tr>
+                    <tr>
+                        <td>Use Cases</td>
+                        <td>General forecasting</td>
+                        <td>Multi-horizon detailed</td>
+                        <td>Specialized model tuning required</td>
+                    </tr>
+                </table>
             </div>
 
             <!-- Slide 11: ONNX Deployment -->
